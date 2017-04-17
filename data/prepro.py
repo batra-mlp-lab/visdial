@@ -77,9 +77,9 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
 
     answer_index = np.zeros([num_threads, num_rounds])
 
-    caption_len = np.zeros(num_threads)
-    question_len = np.zeros([num_threads, num_rounds])
-    answer_len = np.zeros([num_threads, num_rounds])
+    caption_len = np.zeros(num_threads, dtype=np.int)
+    question_len = np.zeros([num_threads, num_rounds], dtype=np.int)
+    answer_len = np.zeros([num_threads, num_rounds], dtype=np.int)
 
     image_index = np.zeros(num_threads)
 
@@ -101,7 +101,7 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
             options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
 
     options_list = np.zeros([len(ans_inds), max_ans_len])
-    options_len = np.zeros(len(ans_inds))
+    options_len = np.zeros(len(ans_inds), dtype=np.int)
     for i in range(len(ans_inds)):
         options_len[i] = len(ans_inds[i][0:max_ans_len])
         options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
