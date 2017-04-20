@@ -9,7 +9,7 @@ Abhishek Das, Satwik Kottur, Khushi Gupta, Avi Singh, Deshraj Yadav, José M. F.
 
 **Visual Dialog** requires an AI agent to hold a meaningful dialog with humans in natural, conversational language about visual content. Given an image, dialog history, and a follow-up question about the image, the AI agent has to answer the question.
 
-Demo: [demo.visualdialog.org][11] (Coming soon!)
+Demo: [demo.visualdialog.org][11]
 
 <!-- [![Vimeo](http://i.imgur.com/18aMyaj.png)][12] -->
 
@@ -173,7 +173,7 @@ BSD
 [8]: https://computing.ece.vt.edu/~parikh/
 [9]: https://computing.ece.vt.edu/~batra/
 [10]: http://cvpr2017.thecvf.com/
-[11]: https://demo.visualdialog.org
+[11]: http://demo.visualdialog.org
 [12]: https://vimeo.com/193092429
 [13]: http://torch.ch/
 [14]: https://github.com/torch/torch7
