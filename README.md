@@ -140,6 +140,8 @@ th generate.lua -loadPath checkpoints/model.t7 -maxThreads 50
 
 This would compute predictions for 50 threads from the `val` split and save results in `vis/results/results.json`. Now visit `vis/index.html` in your browser to see generated results.
 
+Sample results from HRE-QIH-G available [here](https://computing.ece.vt.edu/~abhshkdz/visdial/browse_results/).
+
 ![](http://i.imgur.com/R3HJ2E5.gif)
 
 ## Download Extracted Features & Pretrained Models
@@ -151,6 +153,8 @@ All files available for download [here][29].
 * `data_img.h5`: VGG16 image features for COCO `train` and `val`
 
 ### Pretrained models
+
+Model checkpoints available [here][30].
 
 #### Discriminative decoding
 
@@ -204,5 +208,6 @@ BSD
 [27]: https://visualdialog.org/data
 [28]: http://www.robots.ox.ac.uk/~vgg/research/very_deep/
 [29]: https://computing.ece.vt.edu/~abhshkdz/visdial/
+[30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
 
 
