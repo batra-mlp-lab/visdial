@@ -142,7 +142,7 @@ This would compute predictions for 50 threads from the `val` split and save resu
 
 ![](http://i.imgur.com/R3HJ2E5.gif)
 
-## Download Extracted Features ~& Pretrained Models~
+## Download Extracted Features & Pretrained Models
 
 All files available for download [here][29].
 
@@ -150,7 +150,19 @@ All files available for download [here][29].
 * `visdial_params.json`: Vocabulary mappings and COCO image ids
 * `data_img.h5`: VGG16 image features for COCO `train` and `val`
 
-Pretrained models coming soon!
+### Pretrained models
+
+#### Discriminative decoding
+
+* `hre-qih-d.t7`: **H**ierarchical **R**ecurrent **E**ncoder
+* `hrea-qih-d.t7`: **H**ierarchical **R**ecurrent **E**ncoder with **A**ttention
+* `mn-qih-d.t7`: **M**emory **N**etwork
+
+#### Generative decoding
+
+* `hre-qih-g.t7`: **H**ierarchical **R**ecurrent **E**ncoder
+* `hrea-qih-g.t7`: **H**ierarchical **R**ecurrent **E**ncoder with **A**ttention
+* `mn-qih-g.t7`: **M**emory **N**etwork
 
 ## Contributors
 
