@@ -161,12 +161,14 @@ Model checkpoints available [here][30].
 * `hre-qih-d.t7`: **H**ierarchical **R**ecurrent **E**ncoder
 * `hrea-qih-d.t7`: **H**ierarchical **R**ecurrent **E**ncoder with **A**ttention
 * `mn-qih-d.t7`: **M**emory **N**etwork
+* `lf-qih-d.t7`: **L**ate **F**usion
 
 #### Generative decoding
 
 * `hre-qih-g.t7`: **H**ierarchical **R**ecurrent **E**ncoder
 * `hrea-qih-g.t7`: **H**ierarchical **R**ecurrent **E**ncoder with **A**ttention
 * `mn-qih-g.t7`: **M**emory **N**etwork
+* `lf-qih-g.t7`: **L**ate **F**usion
 
 ## Contributors
 
