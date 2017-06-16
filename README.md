@@ -138,7 +138,17 @@ We also include code for running beam search on your model snapshots. This gives
 th generate.lua -loadPath checkpoints/model.t7 -maxThreads 50
 ```
 
-This would compute predictions for 50 threads from the `val` split and save results in `vis/results/results.json`. Now visit `vis/index.html` in your browser to see generated results.
+This would compute predictions for 50 threads from the `val` split and save results in `vis/results/results.json`.
+
+```
+cd vis
+# python 3.6
+python -m http.server
+# python 2.7
+# python -m SimpleHTTPServer
+```
+
+Now visit `localhost:8000` in your browser to see generated results.
 
 Sample results from HRE-QIH-G available [here](https://computing.ece.vt.edu/~abhshkdz/visdial/browse_results/).
 

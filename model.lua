@@ -178,7 +178,7 @@ function Model:retrieve(dataloader, dtype)
 end
 
 -- forward + backward pass
-function Model:forwardBackward(batch, onlyForward, encOutOnly);
+function Model:forwardBackward(batch, onlyForward, encOutOnly)
     local onlyForward = onlyForward or false;
     local encOutOnly = encOutOnly or false
     local inputs = {}
@@ -266,7 +266,7 @@ function Model:forwardBackward(batch, onlyForward, encOutOnly);
     return curLoss;
 end
 
-function Model:retrieveBatch(batch);
+function Model:retrieveBatch(batch)
     local inputs = {}
 
     local batchQues = batch['ques_fwd'];
@@ -392,7 +392,7 @@ function Model:generateAnswers(dataloader, dtype, params)
                 encInSeq = encInSeq[{{},{iter}}]:squeeze():float()
 
                 -- beams
-                local beams = torch.LongTensor(beamLen, beamSize):zero():cuda();
+                local beams = torch.LongTensor(beamLen, beamSize):zero();
 
                 -- initial hidden states for the beam at current round of dialog
                 local hiddenBeams = {};
