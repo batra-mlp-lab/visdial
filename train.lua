@@ -70,11 +70,11 @@ runningLoss = 0;
 for iter = 1, modelParams.numEpochs * modelParams.numIterPerEpoch do
     -- forward and backward propagation
     model:trainIteration(dataloader);
-    
+
     -- evaluate on val and save model
     if iter % (5 * modelParams.numIterPerEpoch) == 0 then
         local currentEpoch = iter / modelParams.numIterPerEpoch
-        
+
         -- save model and optimization parameters
         torch.save(string.format(modelPath .. 'model_epoch_%d.t7', currentEpoch),
                                                     {modelW = model.wrapperW,
@@ -83,14 +83,14 @@ for iter = 1, modelParams.numEpochs * modelParams.numIterPerEpoch do
         -- validation accuracy
         -- model:retrieve(dataloader, 'val');
     end
-    
+
     -- print after every few iterations
     if iter % 100 == 0 then
         local currentEpoch = iter / modelParams.numIterPerEpoch;
-        
+
         -- print current time, running average, learning rate, iteration, epoch
         print(string.format('[%s][Epoch:%.02f][Iter:%d][Loss:%.05f][lr:%f]',
-                                os.date(), currentEpoch, iter, runningLoss, 
+                                os.date(), currentEpoch, iter, runningLoss,
                                             model.optims.learningRate))
     end
     if iter % 10 == 0 then collectgarbage(); end
