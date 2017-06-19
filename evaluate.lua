@@ -56,10 +56,10 @@ modelParams.gpuid = opt.gpuid
 
 -- add flags for various configurations
 -- additionally check if its imitation of discriminative model
-if string.match(opt.encoder, 'hist') then 
-    opt.useHistory = true;
-end
+if string.match(opt.encoder, 'hist') then opt.useHistory = true; end
 if string.match(opt.encoder, 'im') then opt.useIm = true; end
+-- check if history is to be concatenated (only for late fusion encoder)
+if string.match(opt.encoder, 'lf') then opt.concatHistory = true end
 
 ------------------------------------------------------------------------
 -- Loading dataset
