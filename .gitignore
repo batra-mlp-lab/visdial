@@ -2,3 +2,4 @@ checkpoints/
 logs/
 data/
 cnn/
+vis/results/

@@ -5,7 +5,7 @@ local utils = require 'utils'
 local dataloader = {};
 
 -- read the data
--- params: object itself, command line options, 
+-- params: object itself, command line options,
 --          subset of data to load (train, val, test)
 function dataloader:initialize(opt, subsets)
     -- read additional info like dictionary, etc
@@ -69,7 +69,7 @@ function dataloader:initialize(opt, subsets)
         -- print information for data type
         print(string.format('%s:\n\tNo. of threads: %d\n\tNo. of rounds: %d'..
                             '\n\tMax ques len: %d'..'\n\tMax ans len: %d\n',
-                                dtype, self[dtype..'_ques']:size(1), 
+                                dtype, self[dtype..'_ques']:size(1),
                                         self[dtype..'_ques']:size(2),
                                         self[dtype..'_ques']:size(3),
                                         self[dtype..'_ans']:size(3)));
@@ -118,7 +118,6 @@ function dataloader:initialize(opt, subsets)
     imgFile:close();
 
     -- take desired flags/values from opt
-    self.useBi = opt.useBi;
     self.useHistory = opt.useHistory;
     self.useIm = opt.useIm;
     self.maxHistoryLen = opt.maxHistoryLen or 60;
@@ -137,7 +136,7 @@ function dataloader:prepareDataset(dtype)
                                             self[dtype..'_ques_len']);
 
     -- if separate captions are needed
-    if self.useHistory then self:processHistory(dtype); end 
+    if self.useHistory then self:processHistory(dtype); end
     -- prefix options with <START> and <END>, if not train
     -- if dtype ~= 'train' then self:processOptions(dtype); end
     self:processOptions(dtype)
@@ -172,7 +171,7 @@ function dataloader:processAnswers(dtype)
                 --decodeIn[thId][roundId][1] = startToken;
                 decodeIn[thId][roundId][{{2, length + 1}}]
                                 = answers[thId][roundId][{{1, length}}];
-                            
+
                 decodeOut[thId][roundId][{{1, length}}]
                                 = answers[thId][roundId][{{1, length}}];
                 decodeOut[thId][roundId][length+1] = endTokenId;
@@ -187,7 +186,7 @@ function dataloader:processAnswers(dtype)
     self[dtype..'_ans_in'] = decodeIn;
     self[dtype..'_ans_out'] = decodeOut;
 end
-    
+
 -- process caption as history
 function dataloader:processHistory(dtype)
     local captions = self[dtype..'_cap'];
@@ -203,7 +202,7 @@ function dataloader:processHistory(dtype)
     local maxAnsLen = answers:size(3);
 
     -- chop off caption to maxQuesLen
-    local history = torch.LongTensor(numConvs, numRounds, 
+    local history = torch.LongTensor(numConvs, numRounds,
                                     maxQuesLen+maxAnsLen):zero();
     local histLen = torch.LongTensor(numConvs, numRounds):zero();
 
@@ -270,7 +269,7 @@ function dataloader:processOptions(dtype)
         -- only if nonzero
         if length > 0 then
             decodeIn[id][{{2, length + 1}}] = answers[id][{{1, length}}];
-                        
+
             decodeOut[id][{{1, length}}] = answers[id][{{1, length}}];
             decodeOut[id][length + 1] = endTokenId;
         else
@@ -345,11 +344,6 @@ function dataloader.getIndexData(self, inds, params, dtype)
     -- get questions
     local quesFwd = self[dtype..'_ques_fwd']:index(1, inds)
                                             [{{}, {}, {-maxQuesLen, -1}}];
-    local quesBwd;
-    if self.useBi then
-        quesBwd = self[dtype..'_ques_bwd']:index(1, inds)
-                                            [{{}, {}, {-maxQuesLen, -1}}];
-    end
 
     local history;
     if self.useHistory then
@@ -364,7 +358,7 @@ function dataloader.getIndexData(self, inds, params, dtype)
         local imgInds = self[dtype..'_img_pos']:index(1, inds);
         imgFeats = self[dtype..'_img_fv']:index(1, imgInds);
     end
-    
+
     -- get the answer lengths
     local batchAnsLen = self[dtype..'_ans_len']:index(1, inds);
     local maxAnsLen = torch.max(batchAnsLen);
@@ -381,7 +375,6 @@ function dataloader.getIndexData(self, inds, params, dtype)
         output['answer_in'] = answerIn:cuda();
         output['answer_out'] = answerOut:cuda();
         output['answer_ind'] = answerInd:cuda();
-        if quesBwd then output['ques_bwd'] = quesBwd:cuda(); end
         if history then output['hist'] = history:cuda(); end
         if caption then output['cap'] = caption:cuda(); end
         if imgFeats then output['img_feat'] = imgFeats:cuda(); end
@@ -390,7 +383,6 @@ function dataloader.getIndexData(self, inds, params, dtype)
         output['answer_in'] = answerIn:contiguous();
         output['answer_out'] = answerOut:contiguous();
         output['answer_ind'] = answerInd:contiguous()
-        if quesBwd then output['ques_bwd'] = quesBwd:contiguous(); end
         if history then output['hist'] = history:contiguous(); end
         if caption then output['cap'] = caption:contiguous(); end
         if imgFeats then output['img_feat'] = imgFeats:contiguous(); end
