@@ -119,6 +119,7 @@ function dataloader:initialize(opt, subsets)
 
     -- take desired flags/values from opt
     self.useHistory = opt.useHistory;
+    self.concatHistory = opt.concatHistory;
     self.useIm = opt.useIm;
     self.maxHistoryLen = opt.maxHistoryLen or 60;
 
@@ -168,7 +169,6 @@ function dataloader:processAnswers(dtype)
 
             -- only if nonzero
             if length > 0 then
-                --decodeIn[thId][roundId][1] = startToken;
                 decodeIn[thId][roundId][{{2, length + 1}}]
                                 = answers[thId][roundId][{{1, length}}];
 
@@ -201,35 +201,58 @@ function dataloader:processHistory(dtype)
     local numRounds = answers:size(2);
     local maxAnsLen = answers:size(3);
 
-    -- chop off caption to maxQuesLen
-    local history = torch.LongTensor(numConvs, numRounds,
-                                    maxQuesLen+maxAnsLen):zero();
-    local histLen = torch.LongTensor(numConvs, numRounds):zero();
+    local history, histLen;
+    if self.concatHistory == true then
+        self.maxHistoryLen = math.min(numRounds * (maxQuesLen + maxAnsLen), 300);
+
+        history = torch.LongTensor(numConvs, numRounds,
+                                        self.maxHistoryLen):zero();
+        histLen = torch.LongTensor(numConvs, numRounds):zero();
+    else
+        history = torch.LongTensor(numConvs, numRounds,
+                                        maxQuesLen+maxAnsLen):zero();
+        histLen = torch.LongTensor(numConvs, numRounds):zero();
+    end
 
     -- go over each question and append it with answer
     for thId = 1, numConvs do
         local lenC = capLen[thId];
+        local lenH; -- length of history
         for roundId = 1, numRounds do
-            local lenH; -- length of history
             if roundId == 1 then
                 -- first round has caption as history
-                history[thId][roundId]
+                history[thId][roundId][{{1, maxQuesLen + maxAnsLen}}]
                             = captions[thId][{{1, maxQuesLen + maxAnsLen}}];
                 lenH = math.min(lenC, maxQuesLen + maxAnsLen);
             else
-                -- other rounds have previous Q + A as history
                 local lenQ = quesLen[thId][roundId-1];
                 local lenA = ansLen[thId][roundId-1];
-
-                if lenQ > 0 then
-                    history[thId][roundId][{{1, lenQ}}]
-                            = questions[thId][roundId-1][{{1, lenQ}}];
+                -- if concatHistory, string together all previous QAs
+                if self.concatHistory == true then
+                    history[thId][roundId][{{1, lenH}}]
+                                = history[thId][roundId-1][{{1, lenH}}];
+                    history[thId][roundId][{{lenH+1}}] = self.word2ind['<END>'];
+                    if lenQ > 0 then
+                        history[thId][roundId][{{lenH+2, lenH+1+lenQ}}]
+                                    = questions[thId][roundId-1][{{1, lenQ}}];
+                    end
+                    if lenA > 0 then
+                        history[thId][roundId][{{lenH+1+lenQ+1, lenH+1+lenQ+lenA}}]
+                                    = answers[thId][roundId-1][{{1, lenA}}];
+                    end
+                    lenH = lenH + lenQ + lenA + 1
+                -- else, history is just previous round QA
+                else
+                    if lenQ > 0 then
+                        history[thId][roundId][{{1, lenQ}}]
+                                = questions[thId][roundId-1][{{1, lenQ}}];
+                    end
+                    if lenA > 0 then
+                        history[thId][roundId][{{lenQ + 1, lenQ + lenA}}]
+                                    = answers[thId][roundId-1][{{1, lenA}}];
+                    end
+                    lenH = lenA + lenQ;
                 end
-                if lenA > 0 then
-                    history[thId][roundId][{{lenQ + 1, lenQ + lenA}}]
-                                = answers[thId][roundId-1][{{1, lenA}}];
-                end
-                lenH = lenA + lenQ;
             end
             -- save the history length
             histLen[thId][roundId] = lenH;

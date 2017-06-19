@@ -39,14 +39,16 @@ local opts = cmd:parse(arg);
 local curTime = os.date('*t', os.time());
 -- create another folder to avoid clutter
 local modelPath = string.format('checkpoints/model-%d-%d-%d-%d:%d:%d-%s-%s/',
-                                curTime.month, curTime.day, curTime.year, 
+                                curTime.month, curTime.day, curTime.year,
                                 curTime.hour, curTime.min, curTime.sec,
                                 opts.encoder, opts.decoder)
 if opts.savePath == 'checkpoints/' then opts.savePath = modelPath end;
--- additionally check if its imitation of discriminative model
-if string.match(opts.encoder, 'hist') then 
-    opts.useHistory = true;
-end
-if string.match(opts.encoder, 'im') then opts.useIm = true; end
+
+-- check for inputs required
+if string.match(opts.encoder, 'hist') then opts.useHistory = true end
+if string.match(opts.encoder, 'im') then opts.useIm = true end
+
+-- check if history is to be concatenated (only for late fusion encoder)
+if string.match(opts.encoder, 'lf') then opts.concatHistory = true end
 
 return opts;
