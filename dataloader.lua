@@ -101,7 +101,7 @@ function dataloader:initialize(opt, subsets)
         -- maximum length of question
         self.maxQuesLen = self[dtype..'_ques']:size(3);
         -- maximum length of answer
-        self.maxAnsLen = self[dtype..'_ans']:size(2);
+        self.maxAnsLen = self[dtype..'_ans']:size(3);
         -- number of options, if read
         if self[dtype..'_opt'] then
             self.numOptions = self[dtype..'_opt']:size(3);
