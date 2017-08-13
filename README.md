@@ -49,6 +49,8 @@ luarocks install rnn
 luarocks install image
 luarocks install lua-cjson
 luarocks install loadcaffe
+luarocks install luabitop
+luarocks install totem
 ```
 
 Installation instructions for torch-hdf5 are given [here][26].
@@ -71,6 +73,7 @@ The preprocessing script is in Python, and you'll need to install [NLTK][24].
 ```
 pip install nltk
 pip install numpy
+pip install h5py
 python -c "import nltk; nltk.download('all')"
 ```
 
