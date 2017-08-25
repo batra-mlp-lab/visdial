@@ -45,7 +45,7 @@ function Model:__init(params)
     self.wrapper = require('model_utils/weight-init')(self.wrapper, 'xavier');
 
     -- ship to gpu if necessary
-    if params.gpuid >= 0 then 
+    if params.gpuid >= 0 then
         self.wrapper = self.wrapper:cuda();
         self.criterion = self.criterion:cuda();
     end
@@ -53,7 +53,7 @@ function Model:__init(params)
     self.encoder = self.wrapper:get(1);
     self.decoder = self.wrapper:get(2);
     self.wrapperW, self.wrapperdW = self.wrapper:getParameters();
-    
+
     self.wrapper:training();
 
     -- setup the optimizer
@@ -100,7 +100,7 @@ function Model:trainIteration(dataloader)
 
     -- decay learning rate, if needed
     if self.optims.learningRate > self.params.minLRate then
-        self.optims.learningRate = self.optims.learningRate * 
+        self.optims.learningRate = self.optims.learningRate *
                                         self.params.lrDecayRate;
     end
 end
@@ -120,7 +120,7 @@ function Model:evaluate(dataloader, dtype)
         xlua.progress(startId, numThreads);
 
         -- grab a validation batch
-        local batch, nextStartId 
+        local batch, nextStartId
                         = dataloader:getTestBatch(startId, self.params, dtype);
         -- count the number of tokens
         numTokens = numTokens + torch.sum(batch['answer_out']:gt(0));
@@ -131,7 +131,7 @@ function Model:evaluate(dataloader, dtype)
 
     -- print the results
     curLoss = curLoss / numTokens;
-    print(string.format('\n%s\tLoss: %f\t Perplexity: %f\n', dtype, 
+    print(string.format('\n%s\tLoss: %f\t Perplexity: %f\n', dtype,
                         curLoss, math.exp(curLoss)));
 
     -- change back to training
@@ -159,7 +159,7 @@ function Model:retrieve(dataloader, dtype)
         xlua.progress(startId, numThreads);
 
         -- grab a batch
-        local batch, nextStartId = 
+        local batch, nextStartId =
                         dataloader:getTestBatch(startId, self.params, dtype);
 
         -- Call retrieve function for specific model, and store ranks
@@ -190,9 +190,16 @@ function Model:forwardBackward(batch, onlyForward, encOutOnly)
 
     if self.params.useIm == true then
         local imgFeats = batch['img_feat']
-        imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
-        imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
-        imgFeats = imgFeats:view(-1, self.params.imgFeatureSize)
+        -- if attention, then conv layer features
+        if string.match(self.params.encoder, 'att') then
+            imgFeats = imgFeats:view(-1, 1, 14, 14, 512)
+            imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1, 1, 1)
+            imgFeats = imgFeats:view(-1, 14, 14, 512)
+        else
+            imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
+            imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
+            imgFeats = imgFeats:view(-1, self.params.imgFeatureSize)
+        end
         table.insert(inputs, imgFeats)
     end
 
@@ -275,9 +282,16 @@ function Model:retrieveBatch(batch)
 
     if self.params.useIm == true then
         local imgFeats = batch['img_feat']
-        imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
-        imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
-        imgFeats = imgFeats:view(-1, self.params.imgFeatureSize)
+        -- if attention, then conv layer features
+        if string.match(self.params.encoder, 'att') then
+            imgFeats = imgFeats:view(-1, 1, 14, 14, 512)
+            imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1, 1, 1)
+            imgFeats = imgFeats:view(-1, 14, 14, 512)
+        else
+            imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
+            imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
+            imgFeats = imgFeats:view(-1, self.params.imgFeatureSize)
+        end
         table.insert(inputs, imgFeats)
     end
 

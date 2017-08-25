@@ -94,14 +94,17 @@ Since we don't finetune the CNN, training is significantly faster if image featu
 ```
 sh scripts/download_vgg16.sh
 cd data
+# For all models except mn-att-ques-im-hist
 th prepro_img.lua -imageRoot /path/to/coco/images/ -gpuid 0
+# For mn-att-ques-im-hist
+th prepro_img_pool5.lua -imageRoot /path/to/coco/images -gpuid 0
 ```
 
 This should generate `data/data_img.h5` containing features for COCO `train` and `val` splits corresponding to VisDial v0.9.
 
 ### Training
 
-Finally, we can get to training models! All supported encoders are in the `encoders/` folder (`lf-ques`, `lf-ques-im`, `lf-ques-hist`, `lf-ques-im-hist`, `hre-ques-hist`, `hre-ques-im-hist`, `hrea-ques-im-hist`, `mn-ques-hist`, `mn-ques-im-hist`), and decoders in the `decoders/` folder (`gen` and `disc`).
+Finally, we can get to training models! All supported encoders are in the `encoders/` folder (`lf-ques`, `lf-ques-im`, `lf-ques-hist`, `lf-ques-im-hist`, `hre-ques-hist`, `hre-ques-im-hist`, `hrea-ques-im-hist`, `mn-ques-hist`, `mn-ques-im-hist`, `mn-att-ques-im-hist`), and decoders in the `decoders/` folder (`gen` and `disc`).
 
 **Generative** (`gen`) decoding tries to maximize likelihood of ground-truth response and only has access to single input-output pairs of dialog, while **discriminative** (`disc`) decoding makes use of 100 candidate option responses provided for every round of dialog, and maximizes likelihood of correct option.
 

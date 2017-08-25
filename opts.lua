@@ -51,4 +51,10 @@ if string.match(opts.encoder, 'im') then opts.useIm = true end
 -- check if history is to be concatenated (only for late fusion encoder)
 if string.match(opts.encoder, 'lf') then opts.concatHistory = true end
 
+-- attention is always on conv features, not fc7
+if string.match(opts.encoder, 'att') then
+    opts.inputImg = 'data/data_img_pool5.h5'
+    opts.imgNorm = 0
+end
+
 return opts;

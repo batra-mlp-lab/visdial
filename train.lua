@@ -72,7 +72,7 @@ for iter = 1, modelParams.numEpochs * modelParams.numIterPerEpoch do
     model:trainIteration(dataloader);
 
     -- evaluate on val and save model
-    if iter % (5 * modelParams.numIterPerEpoch) == 0 then
+    if iter % (2 * modelParams.numIterPerEpoch) == 0 then
         local currentEpoch = iter / modelParams.numIterPerEpoch
 
         -- save model and optimization parameters
