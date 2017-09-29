@@ -57,11 +57,12 @@ Installation instructions for torch-hdf5 are given [here][26].
 
 ### Running on GPUs
 
-Although our code should work on CPUs, it is *highly* recommended to use GPU acceleration with [CUDA][21]. You'll also need [torch/cutorch][22] and [torch/cunn][23].
+Although our code should work on CPUs, it is *highly* recommended to use GPU acceleration with [CUDA][21]. You'll also need [torch/cutorch][22], [torch/cudnn][31] and [torch/cunn][23].
 
 ```
 luarocks install cutorch
 luarocks install cunn
+luarocks install cudnn
 ```
 
 ## Training your own network
@@ -227,5 +228,5 @@ BSD
 [28]: http://www.robots.ox.ac.uk/~vgg/research/very_deep/
 [29]: https://computing.ece.vt.edu/~abhshkdz/visdial/
 [30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
-
+[31]: https://github.com/soumith/cudnn.torch
 
