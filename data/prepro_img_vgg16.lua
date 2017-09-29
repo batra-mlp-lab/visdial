@@ -43,6 +43,13 @@ for i = #model.modules, 1, -1 do
 end
 model:evaluate()
 
+-------------------------------------------------------------------------------
+-- Infer output dim
+-------------------------------------------------------------------------------
+local dummy_img = torch.DoubleTensor(1, 3, opt.imgSize, opt.imgSize)
+model:forward(dummy_img)
+local ndims = model.output:squeeze():size():totable()
+
 if opt.gpuid >= 0 then
     model = model:cuda()
 end
@@ -50,5 +57,4 @@ end
 -------------------------------------------------------------------------------
 -- Extract features and save to HDF
 -------------------------------------------------------------------------------
-local ndims = 4096
 extractFeatures(model, opt, ndims)

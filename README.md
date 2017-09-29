@@ -98,7 +98,7 @@ cd data
 # For all models except mn-att-ques-im-hist
 th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -gpuid 0
 # For mn-att-ques-im-hist
-th prepro_img_pool5.lua -imageRoot /path/to/coco/images -gpuid 0
+th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -imgSize 448 -layerName pool5 -gpuid 0
 ```
 
 Similarly, [ResNet models][32] released by Facebook can be used for feature extraction. Downloaded models can be placed anywhere, but for uniformity, it is advised to place them in `data/models/resnet` folder. Feature extraction can be carried out in a similar manner as VGG-16:

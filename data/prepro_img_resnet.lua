@@ -34,8 +34,15 @@ end
 -------------------------------------------------------------------------------
 model = torch.load(opt.cnnModel);
 -- Remove the last fully connected + softmax layer of the model
-model:remove(#model.modules)
+model:remove()
 model:evaluate()
+
+-------------------------------------------------------------------------------
+-- Infer output dim
+-------------------------------------------------------------------------------
+local dummy_img = torch.DoubleTensor(1, 3, opt.imgSize, opt.imgSize)
+model:forward(dummy_img)
+local ndims = model.output:squeeze():size():totable()
 
 if opt.gpuid >= 0 then
     model = model:cuda()
@@ -44,5 +51,4 @@ end
 -------------------------------------------------------------------------------
 -- Extract features and save to HDF
 -------------------------------------------------------------------------------
-local ndims = 2048
 extractFeatures(model, opt, ndims)
