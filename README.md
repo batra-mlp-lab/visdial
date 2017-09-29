@@ -90,18 +90,25 @@ This will generate the files `data/visdial_data.h5` (contains tokenized captions
 
 ### Extracting image features
 
-Since we don't finetune the CNN, training is significantly faster if image features are pre-extracted. We use image features from [VGG-16][28]. The model can be downloaded and features extracted using:
+Since we don't finetune the CNN, training is significantly faster if image features are pre-extracted. Currently this repository provides support for extraction from VGG-16 and ResNets. We use image features from [VGG-16][28]. The VGG-16 model can be downloaded and features extracted using:
 
 ```
 sh scripts/download_vgg16.sh
 cd data
 # For all models except mn-att-ques-im-hist
-th prepro_img.lua -imageRoot /path/to/coco/images/ -gpuid 0
+th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -gpuid 0
 # For mn-att-ques-im-hist
 th prepro_img_pool5.lua -imageRoot /path/to/coco/images -gpuid 0
 ```
 
-This should generate `data/data_img.h5` containing features for COCO `train` and `val` splits corresponding to VisDial v0.9.
+Similarly, [ResNet models][32] released by Facebook can be used for feature extraction. Downloaded models can be placed anywhere, but for uniformity, it is advised to place them in `data/models/resnet` folder. Feature extraction can be carried out in a similar manner as VGG-16:
+
+```
+cd data
+th prepro_img_resnet.lua -imageRoot /path/to/coco/images -cnnModel /path/to/t7/model -gpuid 0
+```
+
+Running either of these should generate `data/data_img.h5` containing features for COCO `train` and `val` splits corresponding to VisDial v0.9.
 
 ### Training
 
@@ -228,5 +235,5 @@ BSD
 [28]: http://www.robots.ox.ac.uk/~vgg/research/very_deep/
 [29]: https://computing.ece.vt.edu/~abhshkdz/visdial/
 [30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
-[31]: https://github.com/soumith/cudnn.torch
-
+[31]: https://www.github.com/soumith/cudnn.torch
+[32]: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained
