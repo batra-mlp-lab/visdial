@@ -93,7 +93,7 @@ This will generate the files `data/visdial_data.h5` (contains tokenized captions
 Since we don't finetune the CNN, training is significantly faster if image features are pre-extracted. Currently this repository provides support for extraction from VGG-16 and ResNets. We use image features from [VGG-16][28]. The VGG-16 model can be downloaded and features extracted using:
 
 ```
-sh scripts/download_vgg16.sh
+sh scripts/download_models.sh vgg 16  # works for 19 as well
 cd data
 # For all models except mn-att-ques-im-hist
 th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -gpuid 0
@@ -101,9 +101,10 @@ th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -gpuid 0
 th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -imgSize 448 -layerName pool5 -gpuid 0
 ```
 
-Similarly, [ResNet models][32] released by Facebook can be used for feature extraction. Downloaded models can be placed anywhere, but for uniformity, it is advised to place them in `data/models/resnet` folder. Feature extraction can be carried out in a similar manner as VGG-16:
+Similarly, [ResNet models][32] released by Facebook can be used for feature extraction. Feature extraction can be carried out in a similar manner as VGG-16:
 
 ```
+sh scripts/download_models.sh resnet 200  # works for 18, 34, 50, 101, 152 as well
 cd data
 th prepro_img_resnet.lua -imageRoot /path/to/coco/images -cnnModel /path/to/t7/model -gpuid 0
 ```
