@@ -33,7 +33,7 @@ If you find this code useful, consider citing our work:
 
 All our code is implemented in [Torch][13] (Lua). Installation instructions are as follows:
 
-```
+```sh
 git clone https://github.com/torch/distro.git ~/torch --recursive
 cd ~/torch; bash install-deps;
 TORCH_LUA_VERSION=LUA51 ./install.sh
@@ -41,7 +41,7 @@ TORCH_LUA_VERSION=LUA51 ./install.sh
 
 Additionally, our code uses the following packages: [torch/torch7][14], [torch/nn][15], [torch/nngraph][16], [Element-Research/rnn][17], [torch/image][18], [lua-cjson][19], [loadcaffe][20], [torch-hdf5][25]. After Torch is installed, these can be installed/updated using:
 
-```
+```sh
 luarocks install torch
 luarocks install nn
 luarocks install nngraph
@@ -59,7 +59,7 @@ Installation instructions for torch-hdf5 are given [here][26].
 
 Although our code should work on CPUs, it is *highly* recommended to use GPU acceleration with [CUDA][21]. You'll also need [torch/cutorch][22], [torch/cudnn][31] and [torch/cunn][23].
 
-```
+```sh
 luarocks install cutorch
 luarocks install cunn
 luarocks install cudnn
@@ -71,7 +71,7 @@ luarocks install cudnn
 
 The preprocessing script is in Python, and you'll need to install [NLTK][24].
 
-```
+```sh
 pip install nltk
 pip install numpy
 pip install h5py
@@ -80,7 +80,7 @@ python -c "import nltk; nltk.download('all')"
 
 [VisDial v0.9][27] dataset can be downloaded and preprocessed as follows:
 
-```
+```sh
 cd data
 python prepro.py -download 1
 cd ..
@@ -92,8 +92,8 @@ This will generate the files `data/visdial_data.h5` (contains tokenized captions
 
 Since we don't finetune the CNN, training is significantly faster if image features are pre-extracted. Currently this repository provides support for extraction from VGG-16 and ResNets. We use image features from [VGG-16][28]. The VGG-16 model can be downloaded and features extracted using:
 
-```
-sh scripts/download_models.sh vgg 16  # works for 19 as well
+```sh
+sh scripts/download_model.sh vgg 16  # works for 19 as well
 cd data
 # For all models except mn-att-ques-im-hist
 th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -gpuid 0
@@ -103,8 +103,8 @@ th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -imgSize 448 -layerName 
 
 Similarly, [ResNet models][32] released by Facebook can be used for feature extraction. Feature extraction can be carried out in a similar manner as VGG-16:
 
-```
-sh scripts/download_models.sh resnet 200  # works for 18, 34, 50, 101, 152 as well
+```sh
+sh scripts/download_model.sh resnet 200  # works for 18, 34, 50, 101, 152 as well
 cd data
 th prepro_img_resnet.lua -imageRoot /path/to/coco/images -cnnModel /path/to/t7/model -gpuid 0
 ```
@@ -119,13 +119,13 @@ Finally, we can get to training models! All supported encoders are in the `encod
 
 Encoders and decoders can be arbitrarily plugged together. For example, to train an HRE model with question and history information only (no images), and generative decoding:
 
-```
+```sh
 th train.lua -encoder hre-ques-hist -decoder gen -gpuid 0
 ```
 
 Similarly, to train a Memory Network model with question, image and history information, and discriminative decoding:
 
-```
+```sh
 th train.lua -encoder mn-ques-im-hist -decoder disc -gpuid 0
 ```
 
@@ -139,7 +139,7 @@ We evaluate model performance by where it ranks human response given 100 respons
 
 Model evaluation can be run using:
 
-```
+```sh
 th evaluate.lua -loadPath checkpoints/model.t7 -gpuid 0
 ```
 
@@ -149,13 +149,13 @@ Note that evaluation requires image features `data/data_img.h5`, tokenized dialo
 
 We also include code for running beam search on your model snapshots. This gives significantly nicer results than argmax decoding, and can be run as follows:
 
-```
+```sh
 th generate.lua -loadPath checkpoints/model.t7 -maxThreads 50
 ```
 
 This would compute predictions for 50 threads from the `val` split and save results in `vis/results/results.json`.
 
-```
+```sh
 cd vis
 # python 3.6
 python -m http.server

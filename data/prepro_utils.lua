@@ -89,7 +89,7 @@ function extractFeatures(model, opt, ndims)
         else
             model:forward(ims)
         end
-        trainFeats[{{i, r}, {}}] = model.output:float()
+        valFeats[{{i, r}, {}}] = model.output:float()
         collectgarbage()
     end
 
