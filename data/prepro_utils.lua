@@ -7,7 +7,7 @@ require 'hdf5'
 cjson = require('cjson')
 
 
-function loadImage(imageName, imgSize)
+function loadImage(imageName, imgSize, preprocessType)
     im = image.load(imageName)
 
     if im:size(1) == 1 then
@@ -17,15 +17,10 @@ function loadImage(imageName, imgSize)
     end
 
     im = image.scale(im, imgSize, imgSize)
-    local meanPixel = torch.DoubleTensor({103.939, 116.779, 123.68})
-    im = im:index(1, torch.LongTensor{3, 2, 1}):mul(255.0)
-    meanPixel = meanPixel:view(3, 1, 1):expandAs(im)
-    im:add(-1, meanPixel)
     return im
 end
 
-
-function extractFeatures(model, opt, ndims)
+function extractFeatures(model, opt, ndims, preprocessFn)
     local file = io.open(opt.inputJson, 'r')
     local text = file:read()
     file:close()
@@ -52,6 +47,7 @@ function extractFeatures(model, opt, ndims)
         ims = torch.DoubleTensor(r - i + 1, 3, opt.imgSize, opt.imgSize)
         for j = 1, r - i + 1 do
             ims[j] = loadImage(trainList[i + j - 1], opt.imgSize)
+            ims[j] = preprocessFn(ims[j])
         end
         if opt.gpuid >= 0 then
             ims = ims:cuda()

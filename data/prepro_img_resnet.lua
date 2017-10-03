@@ -38,7 +38,7 @@ model:remove()
 model:evaluate()
 
 -------------------------------------------------------------------------------
--- Infer output dim
+-- Infering output dim
 -------------------------------------------------------------------------------
 local dummy_img = torch.DoubleTensor(1, 3, opt.imgSize, opt.imgSize)
 
@@ -51,6 +51,22 @@ model:forward(dummy_img)
 local ndims = model.output:squeeze():size():totable()
 
 -------------------------------------------------------------------------------
+-- Defining function for image preprocessing, like mean subtraction
+-------------------------------------------------------------------------------
+function preprocessFn(im)
+    -- mean pixel for torch models trained on imagenet
+    local meanstd = {
+       mean = { 0.485, 0.456, 0.406 },
+       std = { 0.229, 0.224, 0.225 },
+    }
+    for i = 1, 3 do
+        im[i]:add(-meanstd.mean[i])
+        im[i]:div(meanstd.std[i])
+    end
+    return im
+end
+
+-------------------------------------------------------------------------------
 -- Extract features and save to HDF
 -------------------------------------------------------------------------------
-extractFeatures(model, opt, ndims)
+extractFeatures(model, opt, ndims, preprocessFn)
