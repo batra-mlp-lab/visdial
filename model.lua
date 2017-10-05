@@ -467,18 +467,11 @@ function Model:generateAnswers(dataloader, dtype, params)
                             curHidden[level]['cell'] = self.decoder.rnnLayers[level].cell[{{1},{wordId}}]:clone():squeeze();
                         end
 
-                        sampleWords = false;
-                        if sampleWords == true then
-                            -- sample and get top probabilities
-                            topInd = torch.multinomial(torch.exp(decOut[wordId] / temperature), beamSize);
-                            topProb = decOut[wordId]:index(1, topInd);
+                        -- sort and get the top probabilities
+                        if beamSize == 1 then
+                            topProb, topInd = torch.topk(decOut, beamSize, true);
                         else
-                            -- sort and get the top probabilities
-                            if beamSize == 1 then
-                                topProb, topInd = torch.topk(decOut, beamSize, true);
-                            else
-                                topProb, topInd = torch.topk(decOut[wordId], beamSize, true);
-                            end
+                            topProb, topInd = torch.topk(decOut[wordId], beamSize, true);
                         end
 
                         for candId = 1, beamSize do
