@@ -7,6 +7,7 @@ cmd:option('-inputImg', 'data/data_img.h5', 'HDF5 file with image features')
 cmd:option('-inputQues', 'data/visdial_data.h5', 'HDF5 file with preprocessed questions')
 cmd:option('-inputJson', 'data/visdial_params.json', 'JSON file with info and vocab')
 cmd:option('-savePath', 'checkpoints/', 'Path to save checkpoints')
+cmd:option('-saveIter', 2, 'Save model checkpoint after every saveIter epochs')
 
 -- specify encoder/decoder
 cmd:option('-encoder', 'lf-ques-hist', 'Name of the encoder to use')
@@ -24,6 +25,7 @@ cmd:option('-numLayers', 2, 'Number of layers in LSTM')
 -- optimization params
 cmd:option('-batchSize', 40, 'Batch size (number of threads) (Adjust base on GPU memory)')
 cmd:option('-learningRate', 1e-3, 'Learning rate')
+cmd:option('-weightInit', 'xavier', 'Weight initialization strategy: xavier|heuristic|kaiming')
 cmd:option('-dropout', 0.5, 'Dropout')
 cmd:option('-numEpochs', 400, 'Epochs')
 cmd:option('-LRateDecay', 10, 'After lr_decay epochs lr reduces to 0.1*lr')

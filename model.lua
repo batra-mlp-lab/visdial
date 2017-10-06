@@ -42,7 +42,7 @@ function Model:__init(params)
     self.wrapper = nn.Sequential():add(enc):add(dec);
 
     -- initialize weights
-    self.wrapper = require('model_utils/weight-init')(self.wrapper, 'xavier');
+    self.wrapper = require('model_utils/weight-init')(self.wrapper, params.weightInit);
 
     -- ship to gpu if necessary
     if params.gpuid >= 0 then
