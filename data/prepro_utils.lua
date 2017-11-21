@@ -74,6 +74,7 @@ function extractFeatures(model, opt, ndims, preprocessFn)
         ims = torch.DoubleTensor(r - i + 1, 3, opt.imgSize, opt.imgSize)
         for j = 1, r - i + 1 do
             ims[j] = loadImage(valList[i + j - 1], opt.imgSize)
+            ims[j] = preprocessFn(ims[j])
         end
         if opt.gpuid >= 0 then
             ims = ims:cuda()
