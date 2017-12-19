@@ -1,5 +1,5 @@
-checkpoints/
-logs/
-data/
-cnn/
-vis/results/
+checkpoints
+logs
+data
+cnn
+vis/results
