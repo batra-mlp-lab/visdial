@@ -59,6 +59,10 @@ function dataloader:initialize(opt, subsets)
                 local nm = torch.sqrt(torch.sum(torch.cmul(imgFeats, imgFeats), 2));
                 imgFeats = torch.cdiv(imgFeats, nm:expandAs(imgFeats)):float();
             end
+            -- Transpose from N x 512 x 14 x 14 to N x 14 x 14 x 512
+            if string.match(opt.encoder, 'att') then
+                imgFeats = imgFeats:permute(1, 3, 4, 2);
+            end
             self[dtype..'_img_fv'] = imgFeats;
             -- TODO: make it 1 indexed in processing code
             -- currently zero indexed, adjust manually

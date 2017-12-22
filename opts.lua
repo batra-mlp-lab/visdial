@@ -55,7 +55,9 @@ if string.match(opts.encoder, 'lf') then opts.concatHistory = true end
 
 -- attention is always on conv features, not fc7
 if string.match(opts.encoder, 'att') then
-    opts.inputImg = 'data/data_img_pool5.h5'
+    if opts.inputImg == 'data/data_img.h5' then
+        opts.inputImg = 'data/data_img_pool5.h5'
+    end
     opts.imgNorm = 0
 end
 
