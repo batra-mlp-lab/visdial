@@ -66,7 +66,7 @@ function encoderNet.model(params)
 
     -- image attention (inspired by SAN, Yang et al., CVPR16)
     local img_feat_size = 512
-    local img_tr_size = 512
+    local img_tr_size = params.rnnHiddenSize
     local rnn_size = params.rnnHiddenSize
     local common_embedding_size = 512
     local num_attention_layer = 1
