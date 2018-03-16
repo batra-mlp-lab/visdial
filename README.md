@@ -45,12 +45,19 @@ Additionally, our code uses the following packages: [torch/torch7][14], [torch/n
 luarocks install torch
 luarocks install nn
 luarocks install nngraph
-luarocks install rnn
 luarocks install image
 luarocks install lua-cjson
 luarocks install loadcaffe
 luarocks install luabitop
 luarocks install totem
+```
+
+**NOTE**: `luarocks install rnn` defaults to [torch/rnn][33], follow these steps to install [Element-Research/rnn][17].
+
+```sh
+git clone https://github.com/Element-Research/rnn.git
+cd rnn
+luarocks make rocks/rnn-scm-1.rockspec
 ```
 
 Installation instructions for torch-hdf5 are given [here][26].
@@ -238,3 +245,4 @@ BSD
 [30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
 [31]: https://www.github.com/soumith/cudnn.torch
 [32]: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained
+[33]: https://github.com/torch/rnn
