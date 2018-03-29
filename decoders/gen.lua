@@ -47,7 +47,9 @@ function decoderNet.backwardConnect(enc, dec)
         -- borrow gradients from decoder
         for ii = 1, #dec.rnnLayers do
             enc.rnnLayers[ii].userNextGradCell = dec.rnnLayers[ii].userGradPrevCell;
-            enc.rnnLayers[ii].gradPrevOutput = dec.rnnLayers[ii].userGradPrevOutput;
+            if ii ~= #dec.rnnLayers then
+                enc.rnnLayers[ii].gradPrevOutput = dec.rnnLayers[ii].userGradPrevOutput;
+            end
         end
 
         -- return the gradients for the last layer
