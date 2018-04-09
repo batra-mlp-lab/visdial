@@ -175,6 +175,8 @@ function Model:retrieve(dataloader, dtype)
 
     -- collect garbage
     collectgarbage();
+
+    return ranks;
 end
 
 -- forward + backward pass

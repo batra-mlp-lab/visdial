@@ -20,10 +20,13 @@ cmd:option('-inputJson','data/visdial_params.json','json path with info and voca
 cmd:option('-loadPath', 'checkpoints/model.t7', 'path to saved model')
 cmd:option('-split', 'val', 'split to evaluate on')
 
--- optimization params
-cmd:option('-batchSize', 200, 'Batch size (number of threads) (Adjust base on GRAM)');
+-- Inference params
+cmd:option('-batchSize', 30, 'Batch size (number of threads) (Adjust base on GRAM)')
 cmd:option('-gpuid', 0, 'GPU id to use')
 cmd:option('-backend', 'cudnn', 'nn|cudnn')
+
+cmd:option('-saveRanks', false, 'Whether to save ranks or not');
+cmd:option('-saveRankPath', 'logs/ranks.json');
 
 local opt = cmd:parse(arg);
 print(opt)
@@ -88,4 +91,9 @@ model.wrapperW:copy(savedModel.modelW);
 -- Evaluation
 ------------------------------------------------------------------------
 print('Evaluating..')
-model:retrieve(dataloader, opt.split);
+local ranks = model:retrieve(dataloader, opt.split);
+
+if opt.saveRanks == true then
+    print(string.format('Writing ranks to %s', opt.saveRankPath));
+    utils.writeJSON(opt.saveRankPath, torch.totable(ranks:double()));
+end
