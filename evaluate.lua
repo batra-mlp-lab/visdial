@@ -18,6 +18,7 @@ cmd:option('-inputQues','data/visdial_data.h5','h5file file with preprocessed qu
 cmd:option('-inputJson','data/visdial_params.json','json path with info and vocab')
 
 cmd:option('-loadPath', 'checkpoints/model.t7', 'path to saved model')
+cmd:option('-split', 'val', 'split to evaluate on')
 
 -- optimization params
 cmd:option('-batchSize', 200, 'Batch size (number of threads) (Adjust base on GRAM)');
@@ -71,7 +72,7 @@ if string.match(opt.encoder, 'lf') then opt.concatHistory = true end
 -- Loading dataset
 ------------------------------------------------------------------------
 local dataloader = dofile('dataloader.lua')
-dataloader:initialize(opt, {'val'});
+dataloader:initialize(opt, {opt.split});
 collectgarbage();
 
 ------------------------------------------------------------------------
@@ -87,4 +88,4 @@ model.wrapperW:copy(savedModel.modelW);
 -- Evaluation
 ------------------------------------------------------------------------
 print('Evaluating..')
-model:retrieve(dataloader, 'val');
+model:retrieve(dataloader, opt.split);
