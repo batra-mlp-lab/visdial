@@ -117,6 +117,7 @@ if __name__ == "__main__":
     # Input files
     parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
     parser.add_argument('-input_json_val', default='visdial_0.9_val.json', help='Input `val` json file')
+    parser.add_argument('-input_json_test', default='visdial_0.9_test.json', help='Input `test` json file')
 
     # Output files
     parser.add_argument('-output_json', default='visdial_params.json', help='Output json file')
@@ -133,22 +134,31 @@ if __name__ == "__main__":
     if args.download == 1:
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
+        #TODO Add download path to visdial_0.9_test.zip
 
         os.system('unzip visdial_0.9_train.zip')
         os.system('unzip visdial_0.9_val.zip')
+        os.system('unzip visdial_0.9_test.zip')
 
     print 'Reading json...'
     data_train = json.load(open(args.input_json_train, 'r'))
     data_val = json.load(open(args.input_json_val, 'r'))
+    data_test = json.load(open(args.input_json_test, 'r'))
 
     # Tokenizing
     data_train_toks, ques_train_toks, ans_train_toks, word_counts_train = tokenize_data(data_train, True)
-    data_val_toks, ques_val_toks, ans_val_toks, _ = tokenize_data(data_val)
+    data_val_toks, ques_val_toks, ans_val_toks, word_counts_val = tokenize_data(data_val, True)
+    data_test_toks, ques_test_toks, ans_test_toks, _ = tokenize_data(data_test)
+
+    # combining the word counts of train and val splits
+    word_counts_all = dict(word_counts_train)
+    for word, count in word_counts_val.items():
+        word_counts_all[word] = word_counts_all.get(word, 0) + count
 
     print 'Building vocabulary...'
-    word_counts_train['UNK'] = args.word_count_threshold
-    vocab = [word for word in word_counts_train \
-            if word_counts_train[word] >= args.word_count_threshold]
+    word_counts_all['UNK'] = args.word_count_threshold
+    vocab = [word for word in word_counts_all \
+            if word_counts_all[word] >= args.word_count_threshold]
     print 'Words: %d' % len(vocab)
     word2ind = {word:word_ind+1 for word_ind, word in enumerate(vocab)}
     ind2word = {word_ind:word for word, word_ind in word2ind.items()}
@@ -156,6 +166,7 @@ if __name__ == "__main__":
     print 'Encoding based on vocabulary...'
     data_train_toks, ques_train_inds, ans_train_inds = encode_vocab(data_train_toks, ques_train_toks, ans_train_toks, word2ind)
     data_val_toks, ques_val_inds, ans_val_inds = encode_vocab(data_val_toks, ques_val_toks, ans_val_toks, word2ind)
+    data_test_toks, ques_test_inds, ans_test_inds = encode_vocab(data_test_toks, ques_test_toks, ans_test_toks, word2ind)
 
     print 'Creating data matrices...'
     captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args)
@@ -196,4 +207,3 @@ if __name__ == "__main__":
     out['unique_img_val'] = images_val_list
 
     json.dump(out, open(args.output_json, 'w'))
-
