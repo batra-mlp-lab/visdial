@@ -64,7 +64,7 @@ def encode_vocab(data_toks, ques_toks, ans_toks, word2ind):
 
     return data_toks, ques_inds, ans_inds
 
-def create_data_mats(data_toks, ques_inds, ans_inds, params):
+def create_data_mats(data_toks, ques_inds, ans_inds, params, data_split):
     num_threads = len(data_toks.keys())
     num_rounds = 10
     max_cap_len = params.max_cap_len
@@ -75,14 +75,13 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
     questions = np.zeros([num_threads, num_rounds, max_ques_len])
     answers = np.zeros([num_threads, num_rounds, max_ans_len])
 
-    answer_index = np.zeros([num_threads, num_rounds])
-
     caption_len = np.zeros(num_threads, dtype=np.int)
     question_len = np.zeros([num_threads, num_rounds], dtype=np.int)
     answer_len = np.zeros([num_threads, num_rounds], dtype=np.int)
 
     image_index = np.zeros(num_threads)
 
+    answer_index = np.zeros([num_threads, num_rounds])
     options = np.zeros([num_threads, num_rounds, 100])
 
     image_list = []
@@ -97,14 +96,18 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
             questions[i][j][0:question_len[i][j]] = ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len]
             answer_len[i][j] = len(ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len])
             answers[i][j][0:answer_len[i][j]] = ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len]
-            answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
-            options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
+
+            if data_split in [ 'train', 'val' ]:
+                answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
+                options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
 
     options_list = np.zeros([len(ans_inds), max_ans_len])
     options_len = np.zeros(len(ans_inds), dtype=np.int)
-    for i in range(len(ans_inds)):
-        options_len[i] = len(ans_inds[i][0:max_ans_len])
-        options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
+
+    if data_split in [ 'train', 'val' ]:
+        for i in range(len(ans_inds)):
+            options_len[i] = len(ans_inds[i][0:max_ans_len])
+            options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
 
     return captions, caption_len, questions, question_len, answers, answer_len, options, options_list, options_len, answer_index, image_index, image_list
 
@@ -113,6 +116,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-download', default=0, type=int, help='Whether to download VisDial v0.9 data')
+    parser.add_argument('-train_split', default='train', help='Choose the data split: train | trainval')
+
 
     # Input files
     parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
@@ -134,26 +139,34 @@ if __name__ == "__main__":
     if args.download == 1:
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
-        #TODO Add download path to visdial_0.9_test.zip
+        # if args.train_split == 'trainval':
+            #TODO Add download path to visdial_0.9_test.zip
 
         os.system('unzip visdial_0.9_train.zip')
         os.system('unzip visdial_0.9_val.zip')
-        os.system('unzip visdial_0.9_test.zip')
+        if args.train_split == 'trainval':
+            os.system('unzip visdial_0.9_test.zip')
 
     print 'Reading json...'
     data_train = json.load(open(args.input_json_train, 'r'))
     data_val = json.load(open(args.input_json_val, 'r'))
-    data_test = json.load(open(args.input_json_test, 'r'))
+    if args.train_split == 'trainval':
+        data_test = json.load(open(args.input_json_test, 'r'))
 
     # Tokenizing
     data_train_toks, ques_train_toks, ans_train_toks, word_counts_train = tokenize_data(data_train, True)
-    data_val_toks, ques_val_toks, ans_val_toks, word_counts_val = tokenize_data(data_val, True)
-    data_test_toks, ques_test_toks, ans_test_toks, _ = tokenize_data(data_test)
+    if args.train_split == 'train':
+        data_val_toks, ques_val_toks, ans_val_toks, _ = tokenize_data(data_val)
+    elif args.train_split == 'trainval':
+        data_val_toks, ques_val_toks, ans_val_toks, word_counts_val = tokenize_data(data_val, True)
+        data_test_toks, ques_test_toks, ans_test_toks, _ = tokenize_data(data_test)
 
-    # combining the word counts of train and val splits
     word_counts_all = dict(word_counts_train)
-    for word, count in word_counts_val.items():
-        word_counts_all[word] = word_counts_all.get(word, 0) + count
+
+    if args.train_split == 'trainval':
+        # combining the word counts of train and val splits
+        for word, count in word_counts_val.items():
+            word_counts_all[word] = word_counts_all.get(word, 0) + count
 
     print 'Building vocabulary...'
     word_counts_all['UNK'] = args.word_count_threshold
@@ -166,11 +179,14 @@ if __name__ == "__main__":
     print 'Encoding based on vocabulary...'
     data_train_toks, ques_train_inds, ans_train_inds = encode_vocab(data_train_toks, ques_train_toks, ans_train_toks, word2ind)
     data_val_toks, ques_val_inds, ans_val_inds = encode_vocab(data_val_toks, ques_val_toks, ans_val_toks, word2ind)
-    data_test_toks, ques_test_inds, ans_test_inds = encode_vocab(data_test_toks, ques_test_toks, ans_test_toks, word2ind)
+    if args.train_split == 'trainval':
+        data_test_toks, ques_test_inds, ans_test_inds = encode_vocab(data_test_toks, ques_test_toks, ans_test_toks, word2ind)
 
     print 'Creating data matrices...'
-    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args)
-    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args)
+    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args, 'train')
+    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args, 'val')
+    if args.train_split == 'trainval':
+        captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, _, _, _, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
 
     print 'Saving hdf5...'
     f = h5py.File(args.output_h5, 'w')
@@ -198,6 +214,15 @@ if __name__ == "__main__":
     f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
     f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
 
+    if args.train_split == 'trainval':
+        f.create_dataset('ques_test', dtype='uint32', data=questions_test)
+        f.create_dataset('ques_length_test', dtype='uint32', data=questions_test_len)
+        f.create_dataset('ans_test', dtype='uint32', data=answers_test)
+        f.create_dataset('ans_length_test', dtype='uint32', data=answers_test_len)
+        f.create_dataset('cap_test', dtype='uint32', data=captions_test)
+        f.create_dataset('cap_length_test', dtype='uint32', data=captions_test_len)
+        f.create_dataset('img_pos_test', dtype='uint32', data=images_test_index)
+
     f.close()
 
     out = {}
@@ -205,5 +230,7 @@ if __name__ == "__main__":
     out['word2ind'] = word2ind
     out['unique_img_train'] = images_train_list
     out['unique_img_val'] = images_val_list
+    if args.train_split == 'trainval':
+        out['unique_img_test'] = images_test_list
 
     json.dump(out, open(args.output_json, 'w'))
