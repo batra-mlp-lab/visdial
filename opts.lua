@@ -22,6 +22,8 @@ cmd:option('-rnnHiddenSize', 512, 'Size of the LSTM state')
 cmd:option('-maxHistoryLen', 60, 'Maximum history to consider when using concatenated QA pairs');
 cmd:option('-numLayers', 2, 'Number of layers in LSTM')
 
+cmd:option('-loadPath', '', 'Checkpoint path to load from')
+
 -- optimization params
 cmd:option('-batchSize', 40, 'Batch size (number of threads) (Adjust base on GPU memory)')
 cmd:option('-learningRate', 1e-3, 'Learning rate')

@@ -11,13 +11,6 @@ print(opt)
 -- seed for reproducibility
 torch.manualSeed(1234);
 
-------------------------------------------------------------------------
--- Loading dataset
-------------------------------------------------------------------------
-local dataloader = dofile('dataloader.lua')
-dataloader:initialize(opt, {'train'});
-collectgarbage();
-
 -- set default tensor based on gpu usage
 if opt.gpuid >= 0 then
     require 'cutorch'
@@ -30,12 +23,34 @@ else
     torch.setdefaulttensortype('torch.FloatTensor');
 end
 
-------------------------------------------------------------------------
--- Setting model parameters
-------------------------------------------------------------------------
 -- transfer all options to model
 local modelParams = opt;
 
+------------------------------------------------------------------------
+-- Read saved model and parameters
+------------------------------------------------------------------------
+local savedModel = false;
+if opt.loadPath ~= '' then
+    savedModel  = torch.load(opt.loadPath);
+    modelParams = savedModel.modelParams;
+
+    opt.imgNorm = modelParams.imgNorm;
+    opt.encoder = modelParams.encoder;
+    opt.decoder = modelParams.decoder;
+    modelParams.gpudid = opt.gpuid;
+    modelParams.batchSize = opt.batchSize;
+end
+
+------------------------------------------------------------------------
+-- Loading dataset
+------------------------------------------------------------------------
+local dataloader = dofile('dataloader.lua');
+dataloader:initialize(opt, {'train'});
+collectgarbage();
+
+------------------------------------------------------------------------
+-- Setting model parameters
+------------------------------------------------------------------------
 -- transfer parameters from dataloader to model
 paramNames = {'numTrainThreads', 'numTestThreads', 'numValThreads',
                 'vocabSize', 'maxQuesCount', 'maxQuesLen', 'maxAnsLen'};
@@ -59,6 +74,11 @@ print(string.format('\n%d iter per epoch.', modelParams.numIterPerEpoch));
 ------------------------------------------------------------------------
 require 'model'
 local model = Model(modelParams);
+
+if opt.loadPath ~= '' then
+    model.wrapperW:copy(savedModel.modelW);
+    model.optims.learningRate = savedModel.optims.learningRate;
+end
 
 ------------------------------------------------------------------------
 -- Training
