@@ -68,8 +68,8 @@ function encoderNet.model(params)
     local img_feat_size = 512
     local img_tr_size = params.rnnHiddenSize
     local rnn_size = params.rnnHiddenSize
-    local common_embedding_size = 512
-    local num_attention_layer = 1
+    local common_embedding_size = params.commonEmbeddingSize
+    local num_attention_layer = params.numAttentionLayers
 
     local u = qh2
     local img_tr = nn.Dropout(0.5)(nn.Tanh()(nn.View(-1, 196, img_tr_size)(nn.Linear(img_feat_size, img_tr_size)(nn.View(img_feat_size):setNumInputDims(2)(img_feats)))))
