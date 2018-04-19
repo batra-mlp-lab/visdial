@@ -197,7 +197,7 @@ if __name__ == "__main__":
         options_trainval_len = np.concatenate((options_train_len, options_val_len), axis = 0)
         answers_trainval_index = np.concatenate((answers_train_index, answers_val_index), axis = 0)
         images_trainval_index = np.concatenate((images_train_index, images_val_index + images_train_index.shape[0]), axis = 0)
-        images_trainval_list = np.concatenate((images_train_list, images_val_list), axis = 0)
+        images_trainval_list = images_train_list + images_val_list
 
         captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, _, _, _, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
 
