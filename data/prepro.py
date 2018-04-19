@@ -104,10 +104,9 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, data_split):
     options_list = np.zeros([len(ans_inds), max_ans_len])
     options_len = np.zeros(len(ans_inds), dtype=np.int)
 
-    if data_split in [ 'train', 'val' ]:
-        for i in range(len(ans_inds)):
-            options_len[i] = len(ans_inds[i][0:max_ans_len])
-            options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
+    for i in range(len(ans_inds)):
+        options_len[i] = len(ans_inds[i][0:max_ans_len])
+        options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
 
     return captions, caption_len, questions, question_len, answers, answer_len, options, options_list, options_len, answer_index, image_index, image_list
 
