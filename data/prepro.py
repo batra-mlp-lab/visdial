@@ -186,35 +186,61 @@ if __name__ == "__main__":
     captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args, 'train')
     captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args, 'val')
     if args.train_split == 'trainval':
+        captions_trainval = np.concatenate((captions_train, captions_val), axis = 0)
+        captions_trainval_len = np.concatenate((captions_train_len, captions_val_len), axis = 0)
+        questions_trainval = np.concatenate((questions_train, questions_val), axis = 0)
+        questions_trainval_len = np.concatenate((questions_train_len, questions_val_len), axis = 0)
+        answers_trainval = np.concatenate((answers_train, answers_val), axis = 0)
+        answers_trainval_len = np.concatenate((answers_train_len, answers_val_len), axis = 0)
+        options_trainval = np.concatenate((options_train, options_val + len(ans_train_inds)), axis = 0)
+        options_trainval_list = np.concatenate((options_train_list, options_val_list), axis = 0)
+        options_trainval_len = np.concatenate((options_train_len, options_val_len), axis = 0)
+        answers_trainval_index = np.concatenate((answers_train_index, answers_val_index), axis = 0)
+        images_trainval_index = np.concatenate((images_train_index, images_val_index + images_train_index.shape[0]), axis = 0)
+        images_trainval_list = np.concatenate((images_train_list, images_val_list), axis = 0)
+
         captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, _, _, _, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
 
     print 'Saving hdf5...'
     f = h5py.File(args.output_h5, 'w')
-    f.create_dataset('ques_train', dtype='uint32', data=questions_train)
-    f.create_dataset('ques_length_train', dtype='uint32', data=questions_train_len)
-    f.create_dataset('ans_train', dtype='uint32', data=answers_train)
-    f.create_dataset('ans_length_train', dtype='uint32', data=answers_train_len)
-    f.create_dataset('ans_index_train', dtype='uint32', data=answers_train_index)
-    f.create_dataset('cap_train', dtype='uint32', data=captions_train)
-    f.create_dataset('cap_length_train', dtype='uint32', data=captions_train_len)
-    f.create_dataset('opt_train', dtype='uint32', data=options_train)
-    f.create_dataset('opt_length_train', dtype='uint32', data=options_train_len)
-    f.create_dataset('opt_list_train', dtype='uint32', data=options_train_list)
-    f.create_dataset('img_pos_train', dtype='uint32', data=images_train_index)
+    if args.train_split == 'train':
+        f.create_dataset('ques_train', dtype='uint32', data=questions_train)
+        f.create_dataset('ques_length_train', dtype='uint32', data=questions_train_len)
+        f.create_dataset('ans_train', dtype='uint32', data=answers_train)
+        f.create_dataset('ans_length_train', dtype='uint32', data=answers_train_len)
+        f.create_dataset('ans_index_train', dtype='uint32', data=answers_train_index)
+        f.create_dataset('cap_train', dtype='uint32', data=captions_train)
+        f.create_dataset('cap_length_train', dtype='uint32', data=captions_train_len)
+        f.create_dataset('opt_train', dtype='uint32', data=options_train)
+        f.create_dataset('opt_length_train', dtype='uint32', data=options_train_len)
+        f.create_dataset('opt_list_train', dtype='uint32', data=options_train_list)
+        f.create_dataset('img_pos_train', dtype='uint32', data=images_train_index)
 
-    f.create_dataset('ques_val', dtype='uint32', data=questions_val)
-    f.create_dataset('ques_length_val', dtype='uint32', data=questions_val_len)
-    f.create_dataset('ans_val', dtype='uint32', data=answers_val)
-    f.create_dataset('ans_length_val', dtype='uint32', data=answers_val_len)
-    f.create_dataset('ans_index_val', dtype='uint32', data=answers_val_index)
-    f.create_dataset('cap_val', dtype='uint32', data=captions_val)
-    f.create_dataset('cap_length_val', dtype='uint32', data=captions_val_len)
-    f.create_dataset('opt_val', dtype='uint32', data=options_val)
-    f.create_dataset('opt_length_val', dtype='uint32', data=options_val_len)
-    f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
-    f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
+        f.create_dataset('ques_val', dtype='uint32', data=questions_val)
+        f.create_dataset('ques_length_val', dtype='uint32', data=questions_val_len)
+        f.create_dataset('ans_val', dtype='uint32', data=answers_val)
+        f.create_dataset('ans_length_val', dtype='uint32', data=answers_val_len)
+        f.create_dataset('ans_index_val', dtype='uint32', data=answers_val_index)
+        f.create_dataset('cap_val', dtype='uint32', data=captions_val)
+        f.create_dataset('cap_length_val', dtype='uint32', data=captions_val_len)
+        f.create_dataset('opt_val', dtype='uint32', data=options_val)
+        f.create_dataset('opt_length_val', dtype='uint32', data=options_val_len)
+        f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
+        f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
 
-    if args.train_split == 'trainval':
+    elif args.train_split == 'trainval':
+        f.create_dataset('ques_trainval', dtype='uint32', data=questions_trainval)
+        f.create_dataset('ques_length_trainval', dtype='uint32', data=questions_trainval_len)
+        f.create_dataset('ans_trainval', dtype='uint32', data=answers_trainval)
+        f.create_dataset('ans_length_trainval', dtype='uint32', data=answers_trainval_len)
+        f.create_dataset('ans_index_trainval', dtype='uint32', data=answers_trainval_index)
+        f.create_dataset('cap_trainval', dtype='uint32', data=captions_trainval)
+        f.create_dataset('cap_length_trainval', dtype='uint32', data=captions_trainval_len)
+        f.create_dataset('opt_trainval', dtype='uint32', data=options_trainval)
+        f.create_dataset('opt_length_trainval', dtype='uint32', data=options_trainval_len)
+        f.create_dataset('opt_list_trainval', dtype='uint32', data=options_trainval_list)
+        f.create_dataset('img_pos_trainval', dtype='uint32', data=images_trainval_index)
+
         f.create_dataset('ques_test', dtype='uint32', data=questions_test)
         f.create_dataset('ques_length_test', dtype='uint32', data=questions_test_len)
         f.create_dataset('ans_test', dtype='uint32', data=answers_test)
@@ -228,9 +254,11 @@ if __name__ == "__main__":
     out = {}
     out['ind2word'] = ind2word
     out['word2ind'] = word2ind
-    out['unique_img_train'] = images_train_list
-    out['unique_img_val'] = images_val_list
-    if args.train_split == 'trainval':
+    if args.train_split == 'train':
+        out['unique_img_train'] = images_train_list
+        out['unique_img_val'] = images_val_list
+    elif args.train_split == 'trainval':
+        out['unique_img_trainval'] = images_trainval_list
         out['unique_img_test'] = images_test_list
 
     json.dump(out, open(args.output_json, 'w'))
