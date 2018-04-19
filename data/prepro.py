@@ -100,6 +100,9 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, data_split):
             if data_split in [ 'train', 'val' ]:
                 answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
                 options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
+            elif data_split == 'test' and j == len(data_toks[image_id]['dialog']) - 1 :
+                # Add options for last round of test split
+                options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
 
     options_list = np.zeros([len(ans_inds), max_ans_len])
     options_len = np.zeros(len(ans_inds), dtype=np.int)
