@@ -12,7 +12,7 @@ def tokenize_data(data, word_count=False):
     '''
     res, word_counts = {}, {}
 
-    print data['split']
+    print 'Tokenizing data for %s...' % data['split']
     print 'Tokenizing captions...'
     for i in data['data']['dialogs']:
         img_id = i['image_id']
@@ -28,11 +28,14 @@ def tokenize_data(data, word_count=False):
         ans_toks.append(word_tokenize(i))
 
     for i in data['data']['dialogs']:
+        # pad i['dialog'] with NoneType question-answer pairs in the beginning
+        while len(i['dialog']) < 10:
+            i['dialog'].insert(0, {'question': None, 'answer': None})
         res[i['image_id']]['dialog'] = i['dialog']
-        for j in range(10):
-            question = ques_toks[i['dialog'][j]['question']]
-            answer = ans_toks[i['dialog'][j]['answer']]
-            if word_count == True:
+        if word_count == True:
+            for j in range(10):
+                question = ques_toks[i['dialog'][j]['question']]
+                answer = ans_toks[i['dialog'][j]['answer']]
                 for word in question + answer:
                     word_counts[word] = word_counts.get(word, 0) + 1
 
@@ -117,6 +120,7 @@ if __name__ == "__main__":
     # Input files
     parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
     parser.add_argument('-input_json_val', default='visdial_0.9_val.json', help='Input `val` json file')
+    parser.add_argument('-input_json_test', default='visdial_0.9_test.json', help='Input `test` json file')
 
     # Output files
     parser.add_argument('-output_json', default='visdial_params.json', help='Output json file')
@@ -140,10 +144,15 @@ if __name__ == "__main__":
     print 'Reading json...'
     data_train = json.load(open(args.input_json_train, 'r'))
     data_val = json.load(open(args.input_json_val, 'r'))
+    data_test = None
+    if os.path.exists(args.input_json_test):
+        data_test = json.load(open(args.input_json_test, 'r'))
 
     # Tokenizing
     data_train_toks, ques_train_toks, ans_train_toks, word_counts_train = tokenize_data(data_train, True)
     data_val_toks, ques_val_toks, ans_val_toks, _ = tokenize_data(data_val)
+    if data_test:
+        data_test_toks, ques_test_toks, ans_test_toks, _ = tokenize_data(data_test)
 
     print 'Building vocabulary...'
     word_counts_train['UNK'] = args.word_count_threshold
