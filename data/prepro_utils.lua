@@ -28,18 +28,18 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
     local trainList = {}
     for i, imName in pairs(jsonFile.unique_img_train) do
-        table.insert(trainList, string.format('%s/train2014/COCO_train2014_%012d.jpg', opt.imageRoot, imName))
+        table.insert(trainList, string.format('%s/%s', opt.imageRoot, imName))
     end
 
-    local valList = {}
-    for i, imName in pairs(jsonFile.unique_img_val) do
-        table.insert(valList, string.format('%s/val2014/COCO_val2014_%012d.jpg', opt.imageRoot, imName))
-    end
-
-    if opt.train_split == 'trainval' then
+    if opt.train_split == 'train' then
+        local valList = {}
+        for i, imName in pairs(jsonFile.unique_img_val) do
+            table.insert(valList, string.format('%s/%s', opt.imageRoot, imName))
+        end
+    elseif opt.train_split == 'trainval' then
         local testList = {}
         for i, imName in pairs(jsonFile.unique_img_test) do
-            table.insert(testList, string.format('%s/test2014/COCO_test2014_%012d.jpg', opt.imageRoot, imName))
+            table.insert(testList, string.format('%s/%s', opt.imageRoot, imName))
         end
     end
 
@@ -72,34 +72,36 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
     print('\n')
 
-    local sz = #valList
-    local valFeats = torch.FloatTensor(sz, unpack(ndims))
-    print(string.format('Processing %d val images...', sz))
-    for i = 1, sz, opt.batchSize do
-        xlua.progress(i, sz)
-        r = math.min(sz, i + opt.batchSize - 1)
-        ims = torch.DoubleTensor(r - i + 1, 3, opt.imgSize, opt.imgSize)
-        for j = 1, r - i + 1 do
-            ims[j] = loadImage(valList[i + j - 1], opt.imgSize)
-            ims[j] = preprocessFn(ims[j])
-        end
-        if opt.gpuid >= 0 then
-            ims = ims:cuda()
+    if opt.train_split == 'train' then
+
+        local sz = #valList
+        local valFeats = torch.FloatTensor(sz, unpack(ndims))
+        print(string.format('Processing %d val images...', sz))
+        for i = 1, sz, opt.batchSize do
+            xlua.progress(i, sz)
+            r = math.min(sz, i + opt.batchSize - 1)
+            ims = torch.DoubleTensor(r - i + 1, 3, opt.imgSize, opt.imgSize)
+            for j = 1, r - i + 1 do
+                ims[j] = loadImage(valList[i + j - 1], opt.imgSize)
+                ims[j] = preprocessFn(ims[j])
+            end
+            if opt.gpuid >= 0 then
+                ims = ims:cuda()
+            end
+
+            if feature_dims == 4 then
+                -- forward pass and permute to get NHWC format
+                model:forward(ims):permute(1, 3, 4, 2):contiguous():float()
+            else
+                model:forward(ims)
+            end
+            valFeats[{{i, r}, {}}] = model.output:float()
+            collectgarbage()
         end
 
-        if feature_dims == 4 then
-            -- forward pass and permute to get NHWC format
-            model:forward(ims):permute(1, 3, 4, 2):contiguous():float()
-        else
-            model:forward(ims)
-        end
-        valFeats[{{i, r}, {}}] = model.output:float()
-        collectgarbage()
-    end
+        print('\n')
 
-    print('\n')
-
-    if opt.train_split == 'trainval' then
+    elseif opt.train_split == 'trainval' then
 
         local sz = #testList
         local testFeats = torch.FloatTensor(sz, unpack(ndims))
@@ -129,8 +131,9 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
     local h5File = hdf5.open(opt.outName, 'w')
     h5File:write('/images_train', trainFeats)
-    h5File:write('/images_val', valFeats)
-    if opt.train_split == 'trainval' then
+    if opt.train_split == 'train' then
+        h5File:write('/images_val', valFeats)
+    elseif opt.train_split == 'trainval' then
         h5File:write('/images_test', testFeats)
     end
     h5File:close()

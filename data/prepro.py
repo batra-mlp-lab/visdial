@@ -87,7 +87,7 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, data_split):
     image_list = []
     for i in range(num_threads):
         image_id = list(data_toks.keys())[i]
-        image_list.append(image_id)
+        image_list.append('%s2014/COCO_%s2014_%012d.jpg'%(data_split, data_split, image_id))
         image_index[i] = i
         caption_len[i] = len(data_toks[image_id]['caption_inds'][0:max_cap_len])
         captions[i][0:caption_len[i]] = data_toks[image_id]['caption_inds'][0:max_cap_len]
@@ -260,7 +260,7 @@ if __name__ == "__main__":
         out['unique_img_train'] = images_train_list
         out['unique_img_val'] = images_val_list
     elif args.train_split == 'trainval':
-        out['unique_img_trainval'] = images_trainval_list
+        out['unique_img_train'] = images_trainval_list
         out['unique_img_test'] = images_test_list
 
     json.dump(out, open(args.output_json, 'w'))
