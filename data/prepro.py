@@ -87,7 +87,10 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, data_split):
     image_list = []
     for i in range(num_threads):
         image_id = list(data_toks.keys())[i]
-        image_list.append('%s2014/COCO_%s2014_%012d.jpg'%(data_split, data_split, image_id))
+        if data_split == 'test':
+            image_list.append('test2017/VisualDialog_test2017_%012d.jpg' % (image_id))
+        else:
+            image_list.append('%s2014/COCO_%s2014_%012d.jpg' % (data_split, data_split, image_id))
         image_index[i] = i
         caption_len[i] = len(data_toks[image_id]['caption_inds'][0:max_cap_len])
         captions[i][0:caption_len[i]] = data_toks[image_id]['caption_inds'][0:max_cap_len]

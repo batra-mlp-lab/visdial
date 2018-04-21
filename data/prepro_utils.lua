@@ -31,12 +31,12 @@ function extractFeatures(model, opt, ndims, preprocessFn)
         table.insert(trainList, string.format('%s/%s', opt.imageRoot, imName))
     end
 
-    if opt.train_split == 'train' then
+    if opt.trainSplit == 'train' then
         local valList = {}
         for i, imName in pairs(jsonFile.unique_img_val) do
             table.insert(valList, string.format('%s/%s', opt.imageRoot, imName))
         end
-    elseif opt.train_split == 'trainval' then
+    elseif opt.trainSplit == 'trainval' then
         local testList = {}
         for i, imName in pairs(jsonFile.unique_img_test) do
             table.insert(testList, string.format('%s/%s', opt.imageRoot, imName))
@@ -72,7 +72,7 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
     print('\n')
 
-    if opt.train_split == 'train' then
+    if opt.trainSplit == 'train' then
 
         local sz = #valList
         local valFeats = torch.FloatTensor(sz, unpack(ndims))
@@ -101,7 +101,7 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
         print('\n')
 
-    elseif opt.train_split == 'trainval' then
+    elseif opt.trainSplit == 'trainval' then
 
         local sz = #testList
         local testFeats = torch.FloatTensor(sz, unpack(ndims))
@@ -131,9 +131,9 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
     local h5File = hdf5.open(opt.outName, 'w')
     h5File:write('/images_train', trainFeats)
-    if opt.train_split == 'train' then
+    if opt.trainSplit == 'train' then
         h5File:write('/images_val', valFeats)
-    elseif opt.train_split == 'trainval' then
+    elseif opt.trainSplit == 'trainval' then
         h5File:write('/images_test', testFeats)
     end
     h5File:close()
