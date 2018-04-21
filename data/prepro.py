@@ -201,7 +201,7 @@ if __name__ == "__main__":
         images_trainval_index = np.concatenate((images_train_index, images_val_index + images_train_index.shape[0]), axis = 0)
         images_trainval_list = images_train_list + images_val_list
 
-        captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, _, _, _, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
+        captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, options_test, options_test_list, options_test_len, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
 
     print('Saving hdf5...')
     f = h5py.File(args.output_h5, 'w')
@@ -249,6 +249,9 @@ if __name__ == "__main__":
         f.create_dataset('ans_length_test', dtype='uint32', data=answers_test_len)
         f.create_dataset('cap_test', dtype='uint32', data=captions_test)
         f.create_dataset('cap_length_test', dtype='uint32', data=captions_test_len)
+        f.create_dataset('opt_test', dtype='uint32', data=options_test)
+        f.create_dataset('opt_length_test', dtype='uint32', data=options_test_len)
+        f.create_dataset('opt_list_test', dtype='uint32', data=options_test_list)
         f.create_dataset('img_pos_test', dtype='uint32', data=images_test_index)
 
     f.close()
