@@ -34,10 +34,10 @@ def tokenize_data(data, word_count=False):
         if 'answer' not in i['dialog'][-1]:
             i['dialog'][-1]['answer'] = -1
         res[i['image_id']]['dialog'] = i['dialog']
-        if word_count == True:
-            for j in range(10):
-                question = ques_toks[i['dialog'][j]['question']]
-                answer = ans_toks[i['dialog'][j]['answer']]
+        for j in range(10):
+            question = ques_toks[i['dialog'][j]['question']]
+            answer = ans_toks[i['dialog'][j]['answer']]
+            if word_count == True:
                 for word in question + answer:
                     word_counts[word] = word_counts.get(word, 0) + 1
 
@@ -69,7 +69,7 @@ def encode_vocab(data_toks, ques_toks, ans_toks, word2ind):
 
     return data_toks, ques_inds, ans_inds
 
-def create_data_mats(data_toks, ques_inds, ans_inds, params, split):
+def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
     num_threads = len(data_toks.keys())
     num_rounds = 10
     max_cap_len = params.max_cap_len
@@ -80,19 +80,19 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, split):
     questions = np.zeros([num_threads, num_rounds, max_ques_len])
     answers = np.zeros([num_threads, num_rounds, max_ans_len])
 
+    answer_index = np.zeros([num_threads, num_rounds])
+
     caption_len = np.zeros(num_threads, dtype=np.int)
     question_len = np.zeros([num_threads, num_rounds], dtype=np.int)
     answer_len = np.zeros([num_threads, num_rounds], dtype=np.int)
 
     image_index = np.zeros(num_threads)
 
-    # test split has options only for the last round
-    # initialize with ones since torch expects 1-indexed arrays
-    answer_index = np.ones([num_threads, num_rounds])
-    if split == 'test':
-        options = np.ones([num_threads, 100])
+    # test dtype has options only for the last round
+    if dtype == 'test':
+        options = np.zeros([num_threads, 100])
     else:
-        options = np.ones([num_threads, num_rounds, 100])
+        options = np.zeros([num_threads, num_rounds, 100])
 
     image_list = []
     for i in range(num_threads):
@@ -108,12 +108,12 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, split):
             if data_toks[image_id]['dialog'][j]['answer'] != -1:    
                 answer_len[i][j] = len(ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len])
                 answers[i][j][0:answer_len[i][j]] = ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len]
-            if split != 'test':
-                answer_index[i][j] += data_toks[image_id]['dialog'][j]['gt_index']
-                options[i][j] += np.array(data_toks[image_id]['dialog'][j]['answer_options'])
+            if dtype != 'test':
+                answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
+                options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
 
-        if split == 'test':
-            options[i] += np.array(data_toks[image_id]['dialog'][-1]['answer_options'])
+        if dtype == 'test':
+            options[i] = np.array(data_toks[image_id]['dialog'][-1]['answer_options']) + 1
 
     options_list = np.zeros([len(ans_inds), max_ans_len])
     options_len = np.zeros(len(ans_inds), dtype=np.int)

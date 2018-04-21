@@ -20,24 +20,24 @@ function loadImage(imageName, imgSize, preprocessType)
     return im
 end
 
-function extractFeaturesSplit(model, opt, ndims, preprocessFn, split)
+function extractFeaturesSplit(model, opt, ndims, preprocessFn, dtype)
     local file = io.open(opt.inputJson, 'r')
     local text = file:read()
     file:close()
     jsonFile = cjson.decode(text)
 
     local imList = {}
-    if split == 'train' do
+    if dtype == 'train' then
         for i, imName in pairs(jsonFile.unique_img_train) do
-            table.insert(trainList, string.format('%s/train2014/COCO_train2014_%012d.jpg', opt.imageRoot, imName))
+            table.insert(imList, string.format('%s/train2014/COCO_train2014_%012d.jpg', opt.imageRoot, imName))
         end
-    elseif split == 'val' do
+    elseif dtype == 'val' then
         for i, imName in pairs(jsonFile.unique_img_val) do
-            table.insert(valList, string.format('%s/val2014/COCO_val2014_%012d.jpg', opt.imageRoot, imName))
+            table.insert(imList, string.format('%s/val2014/COCO_val2014_%012d.jpg', opt.imageRoot, imName))
         end
     else
         for i, imName in pairs(jsonFile.unique_img_test) do
-            table.insert(valList, string.format('%s/test2015/COCO_test2015_%012d.jpg', opt.imageRoot, imName))
+            table.insert(imList, string.format('%s/test2015/COCO_test2015_%012d.jpg', opt.imageRoot, imName))
         end
     end
 
@@ -45,7 +45,7 @@ function extractFeaturesSplit(model, opt, ndims, preprocessFn, split)
     local imFeats = torch.FloatTensor(sz, unpack(ndims))
     -- feature_dims shall be either 2 (NW format), else 4 (having NCHW format)
     local feature_dims = #imFeats:size()  
-    print(string.format('Processing %d %s images...', sz, split))
+    print(string.format('Processing %d %s images...', sz, dtype))
     for i = 1, sz, opt.batchSize do
         xlua.progress(i, sz)
         r = math.min(sz, i + opt.batchSize - 1)
@@ -67,15 +67,17 @@ function extractFeaturesSplit(model, opt, ndims, preprocessFn, split)
         imFeats[{{i, r}, {}}] = model.output:float()
         collectgarbage()
     end
-    print('\n')
 
-    local h5File = hdf5.open(opt.outName, 'w')
-    h5File:write(string.format('/images_%s', split), imFeats)
-    h5File:close()
+    return imFeats
 end
 
 function extractFeatures(model, opt, ndims, preprocessFn)
-    extractFeaturesSplit(model, opt, ndims, preprocessFn, 'train')
-    extractFeaturesSplit(model, opt, ndims, preprocessFn, 'val')
-    extractFeaturesSplit(model, opt, ndims, preprocessFn, 'test')
+    local h5File = hdf5.open(opt.outName, 'w')
+    imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'train')
+    h5File:write('/images_train', imFeats)
+    imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'val')
+    h5File:write('/images_val', imFeats)
+    imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'test')
+    h5File:write('/images_test', imFeats)
+    h5File:close()    
 end
