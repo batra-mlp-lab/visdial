@@ -28,9 +28,11 @@ def tokenize_data(data, word_count=False):
         ans_toks.append(word_tokenize(i))
 
     for i in data['data']['dialogs']:
-        # pad i['dialog'] with NoneType question-answer pairs in the beginning
+        # pad i['dialog'] with fake question-answer pairs in the beginning
         while len(i['dialog']) < 10:
-            i['dialog'].insert(0, {'question': None, 'answer': None})
+            i['dialog'].insert(0, {'question': -1, 'answer': -1})
+        if 'answer' not in i['dialog'][-1]:
+            i['dialog'][-1]['answer'] = -1
         res[i['image_id']]['dialog'] = i['dialog']
         if word_count == True:
             for j in range(10):
@@ -67,7 +69,7 @@ def encode_vocab(data_toks, ques_toks, ans_toks, word2ind):
 
     return data_toks, ques_inds, ans_inds
 
-def create_data_mats(data_toks, ques_inds, ans_inds, params):
+def create_data_mats(data_toks, ques_inds, ans_inds, params, split):
     num_threads = len(data_toks.keys())
     num_rounds = 10
     max_cap_len = params.max_cap_len
@@ -78,15 +80,19 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
     questions = np.zeros([num_threads, num_rounds, max_ques_len])
     answers = np.zeros([num_threads, num_rounds, max_ans_len])
 
-    answer_index = np.zeros([num_threads, num_rounds])
-
     caption_len = np.zeros(num_threads, dtype=np.int)
     question_len = np.zeros([num_threads, num_rounds], dtype=np.int)
     answer_len = np.zeros([num_threads, num_rounds], dtype=np.int)
 
     image_index = np.zeros(num_threads)
 
-    options = np.zeros([num_threads, num_rounds, 100])
+    # test split has options only for the last round
+    # initialize with ones since torch expects 1-indexed arrays
+    answer_index = np.ones([num_threads, num_rounds])
+    if split == 'test':
+        options = np.ones([num_threads, 100])
+    else:
+        options = np.ones([num_threads, num_rounds, 100])
 
     image_list = []
     for i in range(num_threads):
@@ -96,12 +102,18 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
         caption_len[i] = len(data_toks[image_id]['caption_inds'][0:max_cap_len])
         captions[i][0:caption_len[i]] = data_toks[image_id]['caption_inds'][0:max_cap_len]
         for j in range(10):
-            question_len[i][j] = len(ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len])
-            questions[i][j][0:question_len[i][j]] = ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len]
-            answer_len[i][j] = len(ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len])
-            answers[i][j][0:answer_len[i][j]] = ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len]
-            answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
-            options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
+            if data_toks[image_id]['dialog'][j]['question'] != -1:
+                question_len[i][j] = len(ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len])
+                questions[i][j][0:question_len[i][j]] = ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len]
+            if data_toks[image_id]['dialog'][j]['answer'] != -1:    
+                answer_len[i][j] = len(ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len])
+                answers[i][j][0:answer_len[i][j]] = ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len]
+            if split != 'test':
+                answer_index[i][j] += data_toks[image_id]['dialog'][j]['gt_index']
+                options[i][j] += np.array(data_toks[image_id]['dialog'][j]['answer_options'])
+
+        if split == 'test':
+            options[i] += np.array(data_toks[image_id]['dialog'][-1]['answer_options'])
 
     options_list = np.zeros([len(ans_inds), max_ans_len])
     options_len = np.zeros(len(ans_inds), dtype=np.int)
@@ -110,6 +122,7 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params):
         options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
 
     return captions, caption_len, questions, question_len, answers, answer_len, options, options_list, options_len, answer_index, image_index, image_list
+
 
 if __name__ == "__main__":
 
@@ -165,10 +178,14 @@ if __name__ == "__main__":
     print 'Encoding based on vocabulary...'
     data_train_toks, ques_train_inds, ans_train_inds = encode_vocab(data_train_toks, ques_train_toks, ans_train_toks, word2ind)
     data_val_toks, ques_val_inds, ans_val_inds = encode_vocab(data_val_toks, ques_val_toks, ans_val_toks, word2ind)
+    if data_test:
+        data_test_toks, ques_test_inds, ans_test_inds = encode_vocab(data_test_toks, ques_test_toks, ans_test_toks, word2ind)
 
     print 'Creating data matrices...'
-    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args)
-    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args)
+    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args, 'train')
+    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args, 'val')
+    if data_test:
+        captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, options_test, options_test_list, options_test_len, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
 
     print 'Saving hdf5...'
     f = h5py.File(args.output_h5, 'w')
@@ -196,6 +213,18 @@ if __name__ == "__main__":
     f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
     f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
 
+    if data_test:
+        f.create_dataset('ques_test', dtype='uint32', data=questions_test)
+        f.create_dataset('ques_length_test', dtype='uint32', data=questions_test_len)
+        f.create_dataset('ans_test', dtype='uint32', data=answers_test)
+        f.create_dataset('ans_length_test', dtype='uint32', data=answers_test_len)
+        f.create_dataset('cap_test', dtype='uint32', data=captions_test)
+        f.create_dataset('cap_length_test', dtype='uint32', data=captions_test_len)
+        f.create_dataset('opt_test', dtype='uint32', data=options_test)
+        f.create_dataset('opt_length_test', dtype='uint32', data=options_test_len)
+        f.create_dataset('opt_list_test', dtype='uint32', data=options_test_list)
+        f.create_dataset('img_pos_test', dtype='uint32', data=images_test_index)
+
     f.close()
 
     out = {}
@@ -203,6 +232,10 @@ if __name__ == "__main__":
     out['word2ind'] = word2ind
     out['unique_img_train'] = images_train_list
     out['unique_img_val'] = images_val_list
+    if data_test:
+        out['unique_img_test'] = images_test_list
+    else:
+        out['unique_img_test'] = []
 
     json.dump(out, open(args.output_json, 'w'))
 
