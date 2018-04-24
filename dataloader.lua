@@ -361,6 +361,8 @@ function dataloader.getTestBatch(self, startId, params, dtype)
         if dtype ~= 'test' then 
             batchOutput['answer_ind'] = batchOutput['answer_ind']:view(batchOutput['answer_ind']
                                             :size(1) * batchOutput['answer_ind']:size(2))
+        else
+            batchOutput['num_rounds'] = self[dtype..'_num_rounds']:index(1, inds):long()
         end
     elseif params.decoder == 'gen' then
         -- merge both the tables and return
@@ -459,11 +461,24 @@ function dataloader.getIndexOption(self, inds, params, dtype)
     elseif params.decoder == 'disc' then
         local optInds = self[dtype .. '_opt']:index(1, inds)
         local indVector = optInds:view(-1)
-
+    
         local optionIn = self[dtype .. '_opt_list']:index(1, indVector)
 
         optionIn = optionIn:view(optInds:size(1), optInds:size(2), optInds:size(3), -1)
 
+<<<<<<< HEAD
+=======
+        if dtype == 'test' then
+            -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
+            local optionInTest = torch.zeros(optionIn:size(1), 10, optionIn:size(3), optionIn:size(4)):int()
+            local numRounds = self[dtype..'_num_rounds']:index(1, inds):long()
+            for i = 1, numRounds:size(1) do
+                optionInTest[{{i}, {numRounds[i]}}] = optionIn[i]
+            end
+            optionIn = optionInTest
+        end
+
+>>>>>>> 0cc81bc... Make changes in dataloader.lua and model.lua to handle right padded dialog rounds.
         output = optionIn
 
         if params.gpuid >= 0 then

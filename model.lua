@@ -150,57 +150,51 @@ function Model:retrieve(dataloader, dtype)
 
     self.params.numOptions = 100;
 
-    local retrievalOutput;
+    local ranks;
     if dtype == 'val' then
         -- ranks for the val split, test split has no ground truth to compare ranks
-        local ranks = torch.Tensor(numThreads, self.params.maxQuesCount);
+        ranks = torch.Tensor(numThreads, self.params.maxQuesCount);
         ranks:fill(self.params.numOptions + 1);
+    else
+        -- ranked answer options of last round for test split
+        ranks = torch.zeros(numThreads, self.params.numOptions);
+    end
 
-        while startId <= numThreads do
-            -- print progress
-            xlua.progress(startId, numThreads);
+    while startId <= numThreads do
+        -- print progress
+        xlua.progress(startId, numThreads);
 
-            -- grab a batch
-            local batch, nextStartId =
-                            dataloader:getTestBatch(startId, self.params, dtype);
+        -- grab a batch
+        local batch, nextStartId =
+                        dataloader:getTestBatch(startId, self.params, dtype);
 
-            -- Call retrieve function for specific model, and store ranks
-            ranks[{{startId, nextStartId - 1}, {}}] = self:retrieveBatch(batch, dtype);
-            startId = nextStartId;
+        -- Call retrieve function for specific model, and store ranks
+        local batchRanks = self:retrieveBatch(batch, dtype)
+
+        if dtype == 'val' then
+            ranks[{{startId, nextStartId - 1}, {}}] = batchRanks;
+        else
+            -- remove dummy answer options for remaining rounds in test split
+            batchRanks = batchRanks:view(nextStartId - startId, -1, self.params.numOptions)
+            for i = 1, batch['num_rounds']:size(1) do
+                ranks[{{startId + i - 1}, {}}] = batchRanks[{{i}, {batch['num_rounds'][i]}}];
+            end
         end
+        startId = nextStartId;
+    end
 
+    if dtype ~= 'test' then
         print(string.format('\n%s - Retrieval:', dtype))
         utils.processRanks(ranks);
-        retrievalOutput = ranks;
-    else
-        -- sorted answer options of last round for test split
-        local answerOptions = torch.zeros(numThreads, self.params.numOptions);
+    end
 
-        while startId <= numThreads do
-            -- print progress
-            xlua.progress(startId, numThreads);
-
-            -- grab a batch
-            local batch, nextStartId =
-                            dataloader:getTestBatch(startId, self.params, dtype);
-
-            -- Call retrieve function for specific model, and store ranks
-            local batchAnswerOptions = self:retrieveBatch(batch, dtype);
-            -- remove dummy answer options for first nine rounds
-            batchAnswerOptions = batchAnswerOptions:view(nextStartId - startId, -1, self.params.numOptions)
-            answerOptions[{{startId, nextStartId - 1}, {}}] = batchAnswerOptions[{{}, {10}}];
-            startId = nextStartId;
-        end
-
-        retrievalOutput = answerOptions;
-    end        
     -- change back to training
     self.wrapper:training();
 
     -- collect garbage
     collectgarbage();
 
-    return retrievalOutput;
+    return ranks;
 end
 
 -- forward + backward pass
@@ -380,11 +374,7 @@ function Model:retrieveBatch(batch, dtype)
     elseif self.params.decoder == 'disc' then
         local options = batch['options']
         local decOut = self.decoder:forward({options, encOut})
-
-        -- no ground truth to compare for test split so return output as it is
-        if dtype == 'test' then return decOut end
-
-        local gtPosition = batch['answer_ind']:view(-1, 1);
+        local gtPosition = dtype ~= 'test' and batch['answer_ind']:view(-1, 1) or nil;
 
         -- return the ranks for this batch
         return utils.computeRanks(decOut, gtPosition, 100)
