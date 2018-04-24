@@ -12,31 +12,38 @@ def tokenize_data(data, word_count=False):
     '''
     res, word_counts = {}, {}
 
-    print 'Tokenizing data for %s...' % data['split']
-    print 'Tokenizing captions...'
+    print('Tokenizing data for %s...' % data['split'])
+    print('Tokenizing captions...')
+
     for i in data['data']['dialogs']:
         img_id = i['image_id']
         caption = word_tokenize(i['caption'])
         res[img_id] = {'caption': caption}
 
-    print 'Tokenizing questions...'
+    print('Tokenizing questions...')
     ques_toks, ans_toks = [], []
     for i in data['data']['questions']:
         ques_toks.append(word_tokenize(i + '?'))
-    print 'Tokenizing answers...'
+    print('Tokenizing answers...')
     for i in data['data']['answers']:
         ans_toks.append(word_tokenize(i))
 
     for i in data['data']['dialogs']:
-        # pad i['dialog'] with fake question-answer pairs in the beginning
-        while len(i['dialog']) < 10:
-            i['dialog'].insert(0, {'question': -1, 'answer': -1})
         if 'answer' not in i['dialog'][-1]:
             i['dialog'][-1]['answer'] = -1
+        # pad i['dialog'] with fake question-answer pairs at the end
+        while len(i['dialog']) < 10:
+            i['dialog'].append({'question': -1, 'answer': -1})
         res[i['image_id']]['dialog'] = i['dialog']
         for j in range(10):
-            question = ques_toks[i['dialog'][j]['question']]
-            answer = ans_toks[i['dialog'][j]['answer']]
+            if i['dialog'][j]['question'] == -1:
+                question = ''
+            else:
+                question = ques_toks[i['dialog'][j]['question']]
+            if i['dialog'][j]['answer'] == -1:
+                answer = ''
+            else:
+                answer = ans_toks[i['dialog'][j]['answer']]
             if word_count == True:
                 for word in question + answer:
                     word_counts[word] = word_counts.get(word, 0) + 1
@@ -88,7 +95,7 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
 
     image_index = np.zeros(num_threads)
 
-    # test dtype has options only for the last round
+    # dtype=test has options only for the last round
     if dtype == 'test':
         options = np.zeros([num_threads, 100])
     else:
@@ -96,27 +103,34 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
 
     image_list = []
     for i in range(num_threads):
-        image_id = data_toks.keys()[i]
-        image_list.append(image_id)
+        image_id = list(data_toks.keys())[i]
+        if dtype == 'test':
+            image_list.append('test2017/VisualDialog_test2017_%012d.jpg' % (image_id))
+        else:
+            image_list.append('%s2014/COCO_%s2014_%012d.jpg' % (dtype, dtype, image_id))
         image_index[i] = i
         caption_len[i] = len(data_toks[image_id]['caption_inds'][0:max_cap_len])
         captions[i][0:caption_len[i]] = data_toks[image_id]['caption_inds'][0:max_cap_len]
         for j in range(10):
+
             if data_toks[image_id]['dialog'][j]['question'] != -1:
                 question_len[i][j] = len(ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len])
                 questions[i][j][0:question_len[i][j]] = ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len]
-            if data_toks[image_id]['dialog'][j]['answer'] != -1:    
+            if data_toks[image_id]['dialog'][j]['answer'] != -1:
                 answer_len[i][j] = len(ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len])
                 answers[i][j][0:answer_len[i][j]] = ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len]
             if dtype != 'test':
                 answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
                 options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
 
+        # [TODO]
+        # changed above to right pad dialog, following line should throw an error now
         if dtype == 'test':
             options[i] = np.array(data_toks[image_id]['dialog'][-1]['answer_options']) + 1
 
     options_list = np.zeros([len(ans_inds), max_ans_len])
     options_len = np.zeros(len(ans_inds), dtype=np.int)
+
     for i in range(len(ans_inds)):
         options_len[i] = len(ans_inds[i][0:max_ans_len])
         options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
@@ -129,6 +143,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-download', default=0, type=int, help='Whether to download VisDial v0.9 data')
+    parser.add_argument('-train_split', default='train', help='Choose the data split: train | trainval', choices=['train', 'trainval'])
 
     # Input files
     parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
@@ -150,70 +165,109 @@ if __name__ == "__main__":
     if args.download == 1:
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
+        # if args.train_split == 'trainval':
+            #TODO Add download path to visdial_0.9_test.zip
 
         os.system('unzip visdial_0.9_train.zip')
         os.system('unzip visdial_0.9_val.zip')
+        if args.train_split == 'trainval':
+            os.system('unzip visdial_0.9_test.zip')
 
-    print 'Reading json...'
+    print('Reading json...')
     data_train = json.load(open(args.input_json_train, 'r'))
     data_val = json.load(open(args.input_json_val, 'r'))
-    data_test = None
-    if os.path.exists(args.input_json_test):
+    if args.train_split == 'trainval':
         data_test = json.load(open(args.input_json_test, 'r'))
 
     # Tokenizing
     data_train_toks, ques_train_toks, ans_train_toks, word_counts_train = tokenize_data(data_train, True)
-    data_val_toks, ques_val_toks, ans_val_toks, _ = tokenize_data(data_val)
-    if data_test:
+    if args.train_split == 'train':
+        data_val_toks, ques_val_toks, ans_val_toks, _ = tokenize_data(data_val)
+    elif args.train_split == 'trainval':
+        data_val_toks, ques_val_toks, ans_val_toks, word_counts_val = tokenize_data(data_val, True)
         data_test_toks, ques_test_toks, ans_test_toks, _ = tokenize_data(data_test)
 
-    print 'Building vocabulary...'
-    word_counts_train['UNK'] = args.word_count_threshold
-    vocab = [word for word in word_counts_train \
-            if word_counts_train[word] >= args.word_count_threshold]
-    print 'Words: %d' % len(vocab)
+    word_counts_all = dict(word_counts_train)
+
+    if args.train_split == 'trainval':
+        # combining the word counts of train and val splits
+        for word, count in word_counts_val.items():
+            word_counts_all[word] = word_counts_all.get(word, 0) + count
+
+    print('Building vocabulary...')
+    word_counts_all['UNK'] = args.word_count_threshold
+    vocab = [word for word in word_counts_all \
+            if word_counts_all[word] >= args.word_count_threshold]
+    print('Words: %d' % len(vocab))
     word2ind = {word:word_ind+1 for word_ind, word in enumerate(vocab)}
     ind2word = {word_ind:word for word, word_ind in word2ind.items()}
 
-    print 'Encoding based on vocabulary...'
+    print('Encoding based on vocabulary...')
     data_train_toks, ques_train_inds, ans_train_inds = encode_vocab(data_train_toks, ques_train_toks, ans_train_toks, word2ind)
     data_val_toks, ques_val_inds, ans_val_inds = encode_vocab(data_val_toks, ques_val_toks, ans_val_toks, word2ind)
-    if data_test:
+    if args.train_split == 'trainval':
         data_test_toks, ques_test_inds, ans_test_inds = encode_vocab(data_test_toks, ques_test_toks, ans_test_toks, word2ind)
 
-    print 'Creating data matrices...'
+    print('Creating data matrices...')
     captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args, 'train')
     captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args, 'val')
-    if data_test:
+
+    if args.train_split == 'trainval':
+        captions_trainval = np.concatenate((captions_train, captions_val), axis = 0)
+        captions_trainval_len = np.concatenate((captions_train_len, captions_val_len), axis = 0)
+        questions_trainval = np.concatenate((questions_train, questions_val), axis = 0)
+        questions_trainval_len = np.concatenate((questions_train_len, questions_val_len), axis = 0)
+        answers_trainval = np.concatenate((answers_train, answers_val), axis = 0)
+        answers_trainval_len = np.concatenate((answers_train_len, answers_val_len), axis = 0)
+        options_trainval = np.concatenate((options_train, options_val + len(ans_train_inds)), axis = 0)
+        options_trainval_list = np.concatenate((options_train_list, options_val_list), axis = 0)
+        options_trainval_len = np.concatenate((options_train_len, options_val_len), axis = 0)
+        answers_trainval_index = np.concatenate((answers_train_index, answers_val_index), axis = 0)
+        images_trainval_index = np.concatenate((images_train_index, images_val_index + images_train_index.shape[0]), axis = 0)
+        images_trainval_list = images_train_list + images_val_list
+
         captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, options_test, options_test_list, options_test_len, _, images_test_index, images_test_list = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
 
-    print 'Saving hdf5...'
+    print('Saving hdf5...')
     f = h5py.File(args.output_h5, 'w')
-    f.create_dataset('ques_train', dtype='uint32', data=questions_train)
-    f.create_dataset('ques_length_train', dtype='uint32', data=questions_train_len)
-    f.create_dataset('ans_train', dtype='uint32', data=answers_train)
-    f.create_dataset('ans_length_train', dtype='uint32', data=answers_train_len)
-    f.create_dataset('ans_index_train', dtype='uint32', data=answers_train_index)
-    f.create_dataset('cap_train', dtype='uint32', data=captions_train)
-    f.create_dataset('cap_length_train', dtype='uint32', data=captions_train_len)
-    f.create_dataset('opt_train', dtype='uint32', data=options_train)
-    f.create_dataset('opt_length_train', dtype='uint32', data=options_train_len)
-    f.create_dataset('opt_list_train', dtype='uint32', data=options_train_list)
-    f.create_dataset('img_pos_train', dtype='uint32', data=images_train_index)
+    if args.train_split == 'train':
+        f.create_dataset('ques_train', dtype='uint32', data=questions_train)
+        f.create_dataset('ques_length_train', dtype='uint32', data=questions_train_len)
+        f.create_dataset('ans_train', dtype='uint32', data=answers_train)
+        f.create_dataset('ans_length_train', dtype='uint32', data=answers_train_len)
+        f.create_dataset('ans_index_train', dtype='uint32', data=answers_train_index)
+        f.create_dataset('cap_train', dtype='uint32', data=captions_train)
+        f.create_dataset('cap_length_train', dtype='uint32', data=captions_train_len)
+        f.create_dataset('opt_train', dtype='uint32', data=options_train)
+        f.create_dataset('opt_length_train', dtype='uint32', data=options_train_len)
+        f.create_dataset('opt_list_train', dtype='uint32', data=options_train_list)
+        f.create_dataset('img_pos_train', dtype='uint32', data=images_train_index)
 
-    f.create_dataset('ques_val', dtype='uint32', data=questions_val)
-    f.create_dataset('ques_length_val', dtype='uint32', data=questions_val_len)
-    f.create_dataset('ans_val', dtype='uint32', data=answers_val)
-    f.create_dataset('ans_length_val', dtype='uint32', data=answers_val_len)
-    f.create_dataset('ans_index_val', dtype='uint32', data=answers_val_index)
-    f.create_dataset('cap_val', dtype='uint32', data=captions_val)
-    f.create_dataset('cap_length_val', dtype='uint32', data=captions_val_len)
-    f.create_dataset('opt_val', dtype='uint32', data=options_val)
-    f.create_dataset('opt_length_val', dtype='uint32', data=options_val_len)
-    f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
-    f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
+        f.create_dataset('ques_val', dtype='uint32', data=questions_val)
+        f.create_dataset('ques_length_val', dtype='uint32', data=questions_val_len)
+        f.create_dataset('ans_val', dtype='uint32', data=answers_val)
+        f.create_dataset('ans_length_val', dtype='uint32', data=answers_val_len)
+        f.create_dataset('ans_index_val', dtype='uint32', data=answers_val_index)
+        f.create_dataset('cap_val', dtype='uint32', data=captions_val)
+        f.create_dataset('cap_length_val', dtype='uint32', data=captions_val_len)
+        f.create_dataset('opt_val', dtype='uint32', data=options_val)
+        f.create_dataset('opt_length_val', dtype='uint32', data=options_val_len)
+        f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
+        f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
 
-    if data_test:
+    elif args.train_split == 'trainval':
+        f.create_dataset('ques_train', dtype='uint32', data=questions_trainval)
+        f.create_dataset('ques_length_train', dtype='uint32', data=questions_trainval_len)
+        f.create_dataset('ans_train', dtype='uint32', data=answers_trainval)
+        f.create_dataset('ans_length_train', dtype='uint32', data=answers_trainval_len)
+        f.create_dataset('ans_index_train', dtype='uint32', data=answers_trainval_index)
+        f.create_dataset('cap_train', dtype='uint32', data=captions_trainval)
+        f.create_dataset('cap_length_train', dtype='uint32', data=captions_trainval_len)
+        f.create_dataset('opt_train', dtype='uint32', data=options_trainval)
+        f.create_dataset('opt_length_train', dtype='uint32', data=options_trainval_len)
+        f.create_dataset('opt_list_train', dtype='uint32', data=options_trainval_list)
+        f.create_dataset('img_pos_train', dtype='uint32', data=images_trainval_index)
+
         f.create_dataset('ques_test', dtype='uint32', data=questions_test)
         f.create_dataset('ques_length_test', dtype='uint32', data=questions_test_len)
         f.create_dataset('ans_test', dtype='uint32', data=answers_test)
@@ -230,12 +284,11 @@ if __name__ == "__main__":
     out = {}
     out['ind2word'] = ind2word
     out['word2ind'] = word2ind
-    out['unique_img_train'] = images_train_list
-    out['unique_img_val'] = images_val_list
-    if data_test:
+    if args.train_split == 'train':
+        out['unique_img_train'] = images_train_list
+        out['unique_img_val'] = images_val_list
+    elif args.train_split == 'trainval':
+        out['unique_img_train'] = images_trainval_list
         out['unique_img_test'] = images_test_list
-    else:
-        out['unique_img_test'] = []
 
     json.dump(out, open(args.output_json, 'w'))
-

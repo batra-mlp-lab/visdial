@@ -12,6 +12,7 @@ cmd:text('Options')
 cmd:option('-inputJson', 'visdial_params.json', 'Path to JSON file')
 cmd:option('-imageRoot', '/path/to/images/', 'Path to COCO image root')
 cmd:option('-cnnModel', '/path/to/t7/model', 'Path to Pretrained T7 Model')
+cmd:option('-trainSplit', 'train', 'Which split to use: train | trainval')
 cmd:option('-batchSize', 50, 'Batch size')
 
 cmd:option('-outName', 'data_img.h5', 'Output name')

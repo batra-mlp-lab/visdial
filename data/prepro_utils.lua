@@ -27,24 +27,16 @@ function extractFeaturesSplit(model, opt, ndims, preprocessFn, dtype)
     jsonFile = cjson.decode(text)
 
     local imList = {}
-    if dtype == 'train' then
-        for i, imName in pairs(jsonFile.unique_img_train) do
-            table.insert(imList, string.format('%s/train2014/COCO_train2014_%012d.jpg', opt.imageRoot, imName))
-        end
-    elseif dtype == 'val' then
-        for i, imName in pairs(jsonFile.unique_img_val) do
-            table.insert(imList, string.format('%s/val2014/COCO_val2014_%012d.jpg', opt.imageRoot, imName))
-        end
-    else
-        for i, imName in pairs(jsonFile.unique_img_test) do
-            table.insert(imList, string.format('%s/test2015/COCO_test2015_%012d.jpg', opt.imageRoot, imName))
-        end
+    for i, imName in pairs(jsonFile['unique_img_'..dtype]) do
+        table.insert(imList, string.format('%s/%s', opt.imageRoot, imName))
     end
 
     local sz = #imList
     local imFeats = torch.FloatTensor(sz, unpack(ndims))
+
     -- feature_dims shall be either 2 (NW format), else 4 (having NCHW format)
-    local feature_dims = #imFeats:size()  
+    local feature_dims = #imFeats:size()
+
     print(string.format('Processing %d %s images...', sz, dtype))
     for i = 1, sz, opt.batchSize do
         xlua.progress(i, sz)
@@ -75,9 +67,12 @@ function extractFeatures(model, opt, ndims, preprocessFn)
     local h5File = hdf5.open(opt.outName, 'w')
     imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'train')
     h5File:write('/images_train', imFeats)
-    imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'val')
-    h5File:write('/images_val', imFeats)
-    imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'test')
-    h5File:write('/images_test', imFeats)
-    h5File:close()    
+    if opt.trainSplit == 'train' then
+        imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'val')
+        h5File:write('/images_val', imFeats)
+    elseif opt.trainSplit == 'trainval' then
+        imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'test')
+        h5File:write('/images_test', imFeats)
+    end
+    h5File:close()
 end

@@ -13,6 +13,7 @@ cmd:option('-inputJson', 'visdial_params.json', 'Path to JSON file')
 cmd:option('-imageRoot', '/path/to/images/', 'Path to COCO image root')
 cmd:option('-cnnProto', 'models/vgg16/VGG_ILSVRC_16_layers_deploy.prototxt', 'Path to the CNN prototxt')
 cmd:option('-cnnModel', 'models/vgg16/VGG_ILSVRC_16_layers.caffemodel', 'Path to the CNN model')
+cmd:option('-trainSplit', 'train', 'Which split to use: train | trainval')
 cmd:option('-batchSize', 50, 'Batch size')
 
 cmd:option('-outName', 'data_img.h5', 'Output name')
