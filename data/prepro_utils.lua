@@ -31,13 +31,12 @@ function extractFeatures(model, opt, ndims, preprocessFn)
         table.insert(trainList, string.format('%s/%s', opt.imageRoot, imName))
     end
 
+    local valList, testList = {}, {}
     if opt.trainSplit == 'train' then
-        local valList = {}
         for i, imName in pairs(jsonFile.unique_img_val) do
             table.insert(valList, string.format('%s/%s', opt.imageRoot, imName))
         end
     elseif opt.trainSplit == 'trainval' then
-        local testList = {}
         for i, imName in pairs(jsonFile.unique_img_test) do
             table.insert(testList, string.format('%s/%s', opt.imageRoot, imName))
         end
@@ -72,10 +71,11 @@ function extractFeatures(model, opt, ndims, preprocessFn)
 
     print('\n')
 
+    local valFeats, testFeats;
     if opt.trainSplit == 'train' then
 
         local sz = #valList
-        local valFeats = torch.FloatTensor(sz, unpack(ndims))
+        valFeats = torch.FloatTensor(sz, unpack(ndims))
         print(string.format('Processing %d val images...', sz))
         for i = 1, sz, opt.batchSize do
             xlua.progress(i, sz)
@@ -104,14 +104,14 @@ function extractFeatures(model, opt, ndims, preprocessFn)
     elseif opt.trainSplit == 'trainval' then
 
         local sz = #testList
-        local testFeats = torch.FloatTensor(sz, unpack(ndims))
+        testFeats = torch.FloatTensor(sz, unpack(ndims))
         print(string.format('Processing %d test images...', sz))
         for i = 1, sz, opt.batchSize do
             xlua.progress(i, sz)
             r = math.min(sz, i + opt.batchSize - 1)
             ims = torch.DoubleTensor(r - i + 1, 3, opt.imgSize, opt.imgSize)
             for j = 1, r - i + 1 do
-                ims[j] = loadImage(valList[i + j - 1], opt.imgSize)
+                ims[j] = loadImage(testList[i + j - 1], opt.imgSize)
                 ims[j] = preprocessFn(ims[j])
             end
             if opt.gpuid >= 0 then
