@@ -39,6 +39,11 @@ function dataloader:initialize(opt, subsets)
     self.numThreads = {};
 
     for _, dtype in pairs(subsets) do
+        -- convert image ids to numbers
+        for k, v in pairs(dataloader['unique_img_'..dtype]) do
+            dataloader['unique_img_'..dtype][k] = tonumber(string.match(v, '000%d+')) 
+        end
+
         -- read question related information
         self[dtype..'_ques'] = quesFile:read('ques_'..dtype):all();
         self[dtype..'_ques_len'] = quesFile:read('ques_length_'..dtype):all();

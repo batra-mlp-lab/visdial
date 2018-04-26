@@ -169,13 +169,13 @@ function Model:retrieve(dataloader, dtype)
                         dataloader:getTestBatch(startId, self.params, dtype);
 
         -- Call retrieve function for specific model, and store ranks
-        local batchRanks = self:retrieveBatch(batch, dtype)
+        local batchRanks = self:retrieveBatch(batch, dtype);
 
         if dtype == 'val' then
             ranks[{{startId, nextStartId - 1}, {}}] = batchRanks;
         else
             -- remove dummy answer options for remaining rounds in test split
-            batchRanks = batchRanks:view(nextStartId - startId, -1, self.params.numOptions)
+            batchRanks = batchRanks:view(nextStartId - startId, -1, self.params.numOptions);
             for i = 1, batch['num_rounds']:size(1) do
                 ranks[{{startId + i - 1}, {}}] = batchRanks[{{i}, {batch['num_rounds'][i]}}];
             end
@@ -191,10 +191,22 @@ function Model:retrieve(dataloader, dtype)
     -- change back to training
     self.wrapper:training();
 
+    local retrieval = {};
+    local ranks = torch.totable(ranks:double());
+    for i = 1, #dataloader['unique_img_'..dtype] do
+        entry = {
+            image_id = dataloader['unique_img_'..dtype][i];
+            ranks = ranksTable[i];
+        };
+        if dtype == 'test' then
+            entry['round_id'] = dataloader[dtype..'_num_rounds'][i];
+        end
+        table.insert(retrieval, entry)
+    end
     -- collect garbage
     collectgarbage();
 
-    return ranks;
+    return retrieval;
 end
 
 -- forward + backward pass

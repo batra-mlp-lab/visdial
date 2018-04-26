@@ -91,9 +91,9 @@ model.wrapperW:copy(savedModel.modelW);
 -- Evaluation
 ------------------------------------------------------------------------
 print('Evaluating..')
-local ranks = model:retrieve(dataloader, opt.split);
+local retrieval = model:retrieve(dataloader, opt.split);
 
 if opt.saveRanks == true then
     print(string.format('Writing ranks to %s', opt.saveRankPath));
-    utils.writeJSON(opt.saveRankPath, torch.totable(ranks:double()));
+    utils.writeJSON(opt.saveRankPath, retrieval);
 end
