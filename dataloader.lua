@@ -366,12 +366,13 @@ function dataloader.getTestBatch(self, startId, params, dtype)
         if dtype ~= 'test' then 
             batchOutput['answer_ind'] = batchOutput['answer_ind']:view(batchOutput['answer_ind']
                                             :size(1) * batchOutput['answer_ind']:size(2))
-        else
-            batchOutput['num_rounds'] = self[dtype..'_num_rounds']:index(1, inds):long()
         end
     elseif params.decoder == 'gen' then
         -- merge both the tables and return
         for key, value in pairs(optionOutput) do batchOutput[key] = value; end
+    end
+    if dtype == 'test' then
+        batchOutput['num_rounds'] = self[dtype..'_num_rounds']:index(1, inds):long()
     end
 
     return batchOutput, nextStartId;
@@ -450,11 +451,30 @@ function dataloader.getIndexOption(self, inds, params, dtype)
         optionIn = optionIn:view(optInds:size(1), optInds:size(2),
                                                 optInds:size(3), -1);
         optionIn = optionIn[{{}, {}, {}, {1, maxOptLen}}];
+        if dtype == 'test' then
+            -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
+            local optionInTest = torch.zeros(optionIn:size(1), 10, optionIn:size(3), optionIn:size(4)):int()
+            local numRounds = self[dtype..'_num_rounds']:index(1, inds):long()
+            for i = 1, numRounds:size(1) do
+                optionInTest[{{i}, {numRounds[i]}}] = optionIn[i]
+            end
+            optionIn = optionInTest
+        end
 
         optionOut = self[dtype..'_opt_out']:index(1, indVector);
         optionOut = optionOut:view(optInds:size(1), optInds:size(2),
                                                 optInds:size(3), -1);
         optionOut = optionOut[{{}, {}, {}, {1, maxOptLen}}];
+        if dtype == 'test' then
+            -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
+            local optionOutTest = torch.zeros(optionOut:size(1), 10, optionOut:size(3), optionOut:size(4)):int()
+            local numRounds = self[dtype..'_num_rounds']:index(1, inds):long()
+            for i = 1, numRounds:size(1) do
+                optionOutTest[{{i}, {numRounds[i]}}] = optionOut[i]
+            end
+            optionOut = optionOutTest
+        end
+
 
         if params.gpuid >= 0 then
             output['option_in'] = optionIn:cuda();

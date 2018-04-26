@@ -170,7 +170,6 @@ function Model:retrieve(dataloader, dtype)
 
         -- Call retrieve function for specific model, and store ranks
         local batchRanks = self:retrieveBatch(batch, dtype);
-
         if dtype == 'val' then
             ranks[{{startId, nextStartId - 1}, {}}] = batchRanks;
         else
@@ -196,7 +195,7 @@ function Model:retrieve(dataloader, dtype)
     for i = 1, #dataloader['unique_img_'..dtype] do
         entry = {
             image_id = dataloader['unique_img_'..dtype][i];
-            ranks = ranksTable[i];
+            ranks = ranks[i];
         };
         if dtype == 'test' then
             entry['round_id'] = dataloader[dtype..'_num_rounds'][i];
@@ -362,8 +361,6 @@ function Model:retrieveBatch(batch, dtype)
         optionIn = optionIn:transpose(1, 2):transpose(2, 3);
         optionOut = optionOut:transpose(1, 2):transpose(2, 3);
 
-        local gtPosition = batch['answer_ind']:view(-1, 1);
-
         -- tensor holds the likelihood for all the options
         local optionLhood = torch.Tensor(self.params.numOptions, batchSize);
 
@@ -374,12 +371,12 @@ function Model:retrieveBatch(batch, dtype)
 
             local curOptIn = optionIn[opId];
             local curOptOut = optionOut[opId];
-
             local decOut = self.decoder:forward(curOptIn);
 
             -- compute the probabilities for each answer, based on its tokens
             optionLhood[opId] = utils.computeLhood(curOptOut, decOut);
         end
+        local gtPosition = dtype ~= 'test' and batch['answer_ind']:view(-1, 1) or nil;
 
         -- return the ranks for this batch
         return utils.computeRanks(optionLhood:t(), gtPosition);
