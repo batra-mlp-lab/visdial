@@ -83,9 +83,10 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
     max_cap_len = params.max_cap_len
     captions = np.zeros([num_threads, max_cap_len])
     caption_len = np.zeros(num_threads, dtype=np.int)
-    
+    image_ids = list(data_toks.keys())
+
     for i in range(num_threads):
-        image_id = list(data_toks.keys())[i]
+        image_id = image_ids[i]
         if dtype == 'test':
             image_list.append('test2017/VisualDialog_test2017_%012d.jpg' % (image_id))
         else:
@@ -105,7 +106,7 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
 
     # create questions and answers data mats
     for i in range(num_threads):
-        image_id = list(data_toks.keys())[i]
+        image_id = image_ids[i]
         for j in range(num_rounds):
             if data_toks[image_id]['dialog'][j]['question'] != -1:
                 question_len[i][j] = len(ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len])
@@ -124,8 +125,9 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
         options = np.zeros([num_threads, num_rounds, 100])
 
     for i in range(num_threads):
-        image_id = list(data_toks.keys())[i]
+        image_id = image_ids[i]
         for j in range(num_rounds):
+            # options and answer_index are 1-indexed specifically for lua
             if dtype == 'test':
                 num_rounds_list[i] = data_toks[image_id]['num_rounds']
                 if j == num_rounds_list[i] - 1:
