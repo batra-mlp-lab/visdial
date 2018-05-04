@@ -139,26 +139,23 @@ function Model:evaluate(dataloader, dtype)
 end
 
 -- retrieval performance on val/test
-function Model:retrieve(dataloader, dtype)
+function Model:retrieve(dataloader, dtype, useGt)
     -- change to evaluate mode
     self.wrapper:evaluate();
 
     local curLoss = 0;
     local startId = 1;
     local numThreads = dataloader.numThreads[dtype];
+    self.params.numOptions = 100;
     print('numThreads', numThreads)
 
-    self.params.numOptions = 100;
-
     local ranks;
-    if dtype == 'val' then
-        -- ranks for the val split, test split has no ground truth to compare ranks
+    if useGt then
         ranks = torch.Tensor(numThreads, self.params.maxQuesCount);
-        ranks:fill(self.params.numOptions + 1);
     else
-        -- ranked answer options of last round for test split
-        ranks = torch.zeros(numThreads, self.params.numOptions);
+        ranks = torch.Tensor(numThreads, 10, self.params.numOptions);
     end
+    ranks:fill(self.params.numOptions + 1);
 
     while startId <= numThreads do
         -- print progress
@@ -169,16 +166,11 @@ function Model:retrieve(dataloader, dtype)
                         dataloader:getTestBatch(startId, self.params, dtype);
 
         -- Call retrieve function for specific model, and store ranks
-        local batchRanks = self:retrieveBatch(batch, dtype);
-        if dtype == 'val' then
-            ranks[{{startId, nextStartId - 1}, {}}] = batchRanks;
-        else
-            -- remove dummy answer options for remaining rounds in test split
+        local batchRanks = self:retrieveBatch(batch, useGt);
+        if not useGt then
             batchRanks = batchRanks:view(nextStartId - startId, -1, self.params.numOptions);
-            for i = 1, batch['num_rounds']:size(1) do
-                ranks[{{startId + i - 1}, {}}] = batchRanks[{{i}, {batch['num_rounds'][i]}}];
-            end
         end
+        ranks[{{startId, nextStartId - 1}, {}}] = batchRanks;
         startId = nextStartId;
     end
 
@@ -193,14 +185,22 @@ function Model:retrieve(dataloader, dtype)
     local retrieval = {};
     local ranks = torch.totable(ranks:double());
     for i = 1, #dataloader['unique_img_'..dtype] do
-        entry = {
-            image_id = dataloader['unique_img_'..dtype][i];
-            ranks = ranks[i];
-        };
-        if dtype == 'test' then
-            entry['round_id'] = dataloader[dtype..'_num_rounds'][i];
+        -- rank list for all rounds in val split and last round in test split
+        if dtype == 'val' then
+            for j = 1, 10 do
+                table.insert(retrieval, {
+                    image_id = dataloader['unique_img_'..dtype][i];
+                    round_id = j;
+                    ranks = ranks[i][j]
+                })
+            end
+        else
+            table.insert(retrieval, {
+                image_id = dataloader['unique_img_'..dtype][i];
+                round_id = dataloader[dtype..'_num_rounds'][i];
+                ranks = ranks[i][dataloader[dtype..'_num_rounds'][i]]
+            })
         end
-        table.insert(retrieval, entry)
     end
     -- collect garbage
     collectgarbage();
@@ -304,7 +304,7 @@ function Model:forwardBackward(batch, onlyForward, encOutOnly)
     return curLoss;
 end
 
-function Model:retrieveBatch(batch, dtype)
+function Model:retrieveBatch(batch, useGt)
     local inputs = {}
 
     local batchQues = batch['ques_fwd'];
@@ -376,17 +376,17 @@ function Model:retrieveBatch(batch, dtype)
             -- compute the probabilities for each answer, based on its tokens
             optionLhood[opId] = utils.computeLhood(curOptOut, decOut);
         end
-        local gtPosition = dtype ~= 'test' and batch['answer_ind']:view(-1, 1) or nil;
+        local gtPosition = useGt and batch['answer_ind']:view(-1, 1) or nil;
 
         -- return the ranks for this batch
         return utils.computeRanks(optionLhood:t(), gtPosition);
     elseif self.params.decoder == 'disc' then
         local options = batch['options']
         local decOut = self.decoder:forward({options, encOut})
-        local gtPosition = dtype ~= 'test' and batch['answer_ind']:view(-1, 1) or nil;
+        local gtPosition = useGt and batch['answer_ind']:view(-1, 1) or nil;
 
         -- return the ranks for this batch
-        return utils.computeRanks(decOut, gtPosition, 100)
+        return utils.computeRanks(decOut, gtPosition)
     end
 
 end

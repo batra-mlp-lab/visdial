@@ -19,6 +19,7 @@ cmd:option('-inputJson','data/visdial_params.json','json path with info and voca
 
 cmd:option('-loadPath', 'checkpoints/model.t7', 'path to saved model')
 cmd:option('-split', 'val', 'split to evaluate on')
+cmd:option('-useGt', false, 'whether to use ground truth for retrieving ranks')
 
 -- Inference params
 cmd:option('-batchSize', 30, 'Batch size (number of threads) (Adjust base on GRAM)')
@@ -29,6 +30,11 @@ cmd:option('-saveRanks', false, 'Whether to save ranks or not');
 cmd:option('-saveRankPath', 'logs/ranks.json');
 
 local opt = cmd:parse(arg);
+
+if opt.useGt and opt.split == 'test' then
+    print('Warning: No ground truth avaiilable in test split, changing useGt to false.')
+    opt.useGt = false
+end
 print(opt)
 
 -- seed for reproducibility
@@ -91,7 +97,7 @@ model.wrapperW:copy(savedModel.modelW);
 -- Evaluation
 ------------------------------------------------------------------------
 print('Evaluating..')
-local retrieval = model:retrieve(dataloader, opt.split);
+local retrieval = model:retrieve(dataloader, opt.split, opt.useGt);
 
 if opt.saveRanks == true then
     print(string.format('Writing ranks to %s', opt.saveRankPath));

@@ -491,8 +491,6 @@ function dataloader.getIndexOption(self, inds, params, dtype)
 
         optionIn = optionIn:view(optInds:size(1), optInds:size(2), optInds:size(3), -1)
 
-<<<<<<< HEAD
-=======
         if dtype == 'test' then
             -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
             local optionInTest = torch.zeros(optionIn:size(1), 10, optionIn:size(3), optionIn:size(4)):int()
@@ -503,7 +501,6 @@ function dataloader.getIndexOption(self, inds, params, dtype)
             optionIn = optionInTest
         end
 
->>>>>>> 0cc81bc... Make changes in dataloader.lua and model.lua to handle right padded dialog rounds.
         output = optionIn
 
         if params.gpuid >= 0 then
