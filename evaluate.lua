@@ -97,9 +97,14 @@ model.wrapperW:copy(savedModel.modelW);
 -- Evaluation
 ------------------------------------------------------------------------
 print('Evaluating..')
-local retrieval = model:retrieve(dataloader, opt.split, opt.useGt);
+local ranks;
+if opt.useGt then
+    ranks = model:retrieve(dataloader, opt.split);
+else
+    ranks = model:predict(dataloader, opt.split);
+end
 
 if opt.saveRanks == true then
     print(string.format('Writing ranks to %s', opt.saveRankPath));
-    utils.writeJSON(opt.saveRankPath, retrieval);
+    utils.writeJSON(opt.saveRankPath, ranks);
 end

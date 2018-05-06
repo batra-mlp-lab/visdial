@@ -138,23 +138,17 @@ function Model:evaluate(dataloader, dtype)
     self.wrapper:training();
 end
 
--- retrieval performance on val/test
-function Model:retrieve(dataloader, dtype, useGt)
+-- retrieval performance on val
+function Model:retrieve(dataloader, dtype)
     -- change to evaluate mode
     self.wrapper:evaluate();
 
     local curLoss = 0;
     local startId = 1;
     local numThreads = dataloader.numThreads[dtype];
-    self.params.numOptions = 100;
     print('numThreads', numThreads)
 
-    local ranks;
-    if useGt then
-        ranks = torch.Tensor(numThreads, self.params.maxQuesCount);
-    else
-        ranks = torch.Tensor(numThreads, 10, self.params.numOptions);
-    end
+    local ranks = torch.Tensor(numThreads, self.params.maxQuesCount);
     ranks:fill(self.params.numOptions + 1);
 
     while startId <= numThreads do
@@ -166,18 +160,12 @@ function Model:retrieve(dataloader, dtype, useGt)
                         dataloader:getTestBatch(startId, self.params, dtype);
 
         -- Call retrieve function for specific model, and store ranks
-        local batchRanks = self:retrieveBatch(batch, useGt);
-        if not useGt then
-            batchRanks = batchRanks:view(nextStartId - startId, -1, self.params.numOptions);
-        end
-        ranks[{{startId, nextStartId - 1}, {}}] = batchRanks;
+        ranks[{{startId, nextStartId - 1}, {}}] = self:retrieveBatch(batch);
         startId = nextStartId;
     end
 
-    if dtype ~= 'test' then
-        print(string.format('\n%s - Retrieval:', dtype))
-        utils.processRanks(ranks);
-    end
+    print(string.format('\n%s - Retrieval:', dtype))
+    utils.processRanks(ranks);
 
     -- change back to training
     self.wrapper:training();
@@ -185,17 +173,65 @@ function Model:retrieve(dataloader, dtype, useGt)
     local retrieval = {};
     local ranks = torch.totable(ranks:double());
     for i = 1, #dataloader['unique_img_'..dtype] do
+        for j = 1, 10 do
+            table.insert(retrieval, {
+                image_id = dataloader['unique_img_'..dtype][i];
+                round_id = j;
+                ranks = ranks[i][j]
+            })
+        end
+    end
+    -- collect garbage
+    collectgarbage();
+
+    return retrieval;
+end
+
+-- prediction on val/test
+function Model:predict(dataloader, dtype)
+    -- change to evaluate mode
+    self.wrapper:evaluate();
+
+    local curLoss = 0;
+    local startId = 1;
+    local numThreads = dataloader.numThreads[dtype];
+    self.params.numOptions = 100;
+    print('numThreads', numThreads)
+
+    local ranks = torch.Tensor(numThreads, 10, self.params.numOptions);
+    ranks:fill(self.params.numOptions + 1);
+
+    while startId <= numThreads do
+        -- print progress
+        xlua.progress(startId, numThreads);
+
+        -- grab a batch
+        local batch, nextStartId =
+                        dataloader:getTestBatch(startId, self.params, dtype);
+
+        -- Call retrieve function for specific model, and store ranks
+        ranks[{{startId, nextStartId - 1}, {}}] = self:retrieveBatch(batch)
+                        :view(nextStartId - startId, -1, self.params.numOptions);
+        startId = nextStartId;
+    end
+
+    -- change back to training
+    self.wrapper:training();
+
+    local prediction = {};
+    local ranks = torch.totable(ranks:double());
+    for i = 1, #dataloader['unique_img_'..dtype] do
         -- rank list for all rounds in val split and last round in test split
         if dtype == 'val' then
             for j = 1, 10 do
-                table.insert(retrieval, {
+                table.insert(prediction, {
                     image_id = dataloader['unique_img_'..dtype][i];
                     round_id = j;
                     ranks = ranks[i][j]
                 })
             end
         else
-            table.insert(retrieval, {
+            table.insert(prediction, {
                 image_id = dataloader['unique_img_'..dtype][i];
                 round_id = dataloader[dtype..'_num_rounds'][i];
                 ranks = ranks[i][dataloader[dtype..'_num_rounds'][i]]
@@ -205,7 +241,7 @@ function Model:retrieve(dataloader, dtype, useGt)
     -- collect garbage
     collectgarbage();
 
-    return retrieval;
+    return prediction;
 end
 
 -- forward + backward pass
@@ -304,7 +340,7 @@ function Model:forwardBackward(batch, onlyForward, encOutOnly)
     return curLoss;
 end
 
-function Model:retrieveBatch(batch, useGt)
+function Model:retrieveBatch(batch)
     local inputs = {}
 
     local batchQues = batch['ques_fwd'];
@@ -376,14 +412,15 @@ function Model:retrieveBatch(batch, useGt)
             -- compute the probabilities for each answer, based on its tokens
             optionLhood[opId] = utils.computeLhood(curOptOut, decOut);
         end
-        local gtPosition = useGt and batch['answer_ind']:view(-1, 1) or nil;
+        -- gtPosition can be nil if ground truth does not exist
+        local gtPosition = batch['answer_ind'];
 
         -- return the ranks for this batch
         return utils.computeRanks(optionLhood:t(), gtPosition);
     elseif self.params.decoder == 'disc' then
         local options = batch['options']
         local decOut = self.decoder:forward({options, encOut})
-        local gtPosition = useGt and batch['answer_ind']:view(-1, 1) or nil;
+        local gtPosition = batch['answer_ind'];
 
         -- return the ranks for this batch
         return utils.computeRanks(decOut, gtPosition)

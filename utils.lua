@@ -106,15 +106,16 @@ end
 function utils.computeRanks(scores, gtPos)
     -- simply sort according to scores if ground truth not available
     local ranks;
-    if gtPos == nil then
+    if gtPos then
+        gtPos = gtPos:view(-1, 1);
+        local gtScore = scores:gather(2, gtPos);
+        ranks = scores:gt(gtScore:expandAs(scores));
+        ranks = ranks:sum(2) + 1;
+    else
         sorted, ranks = scores:sort(2)
         for i = 1, scores:size(1) do
             ranks[i] = ranks[i]:index(1, ranks[i]);
         end
-    else
-        local gtScore = scores:gather(2, gtPos);
-        ranks = scores:gt(gtScore:expandAs(scores));
-        ranks = ranks:sum(2) + 1;
     end
 
     -- convert into double
