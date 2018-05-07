@@ -222,7 +222,13 @@ function Model:predict(dataloader, dtype)
     local ranks = torch.totable(ranks:double());
     for i = 1, #dataloader['unique_img_'..dtype] do
         -- rank list for all rounds in val split and last round in test split
-        if dtype == 'val' then
+        if dtype == 'test' then
+            table.insert(prediction, {
+                image_id = dataloader['unique_img_'..dtype][i];
+                round_id = dataloader[dtype..'_num_rounds'][i];
+                ranks = ranks[i][dataloader[dtype..'_num_rounds'][i]]
+            })
+        else
             for j = 1, 10 do
                 table.insert(prediction, {
                     image_id = dataloader['unique_img_'..dtype][i];
@@ -230,12 +236,6 @@ function Model:predict(dataloader, dtype)
                     ranks = ranks[i][j]
                 })
             end
-        else
-            table.insert(prediction, {
-                image_id = dataloader['unique_img_'..dtype][i];
-                round_id = dataloader[dtype..'_num_rounds'][i];
-                ranks = ranks[i][dataloader[dtype..'_num_rounds'][i]]
-            })
         end
     end
     -- collect garbage
