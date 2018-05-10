@@ -112,10 +112,8 @@ function utils.computeRanks(scores, gtPos)
         ranks = scores:gt(gtScore:expandAs(scores));
         ranks = ranks:sum(2) + 1;
     else
-        sorted, ranks = scores:sort(2)
-        for i = 1, scores:size(1) do
-            ranks[i] = ranks[i]:index(1, ranks[i]);
-        end
+        -- sort in descending order - largest score gets highest rank
+        sorted, ranks = scores:sort(2, true)
     end
 
     -- convert into double
