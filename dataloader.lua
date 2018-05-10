@@ -39,6 +39,11 @@ function dataloader:initialize(opt, subsets)
     self.numThreads = {};
 
     for _, dtype in pairs(subsets) do
+        -- convert image ids to numbers
+        for k, v in pairs(dataloader['unique_img_'..dtype]) do
+            dataloader['unique_img_'..dtype][k] = tonumber(string.match(v, '000%d+')) 
+        end
+
         -- read question related information
         self[dtype..'_ques'] = quesFile:read('ques_'..dtype):all();
         self[dtype..'_ques_len'] = quesFile:read('ques_length_'..dtype):all();
@@ -46,7 +51,9 @@ function dataloader:initialize(opt, subsets)
         -- read answer related information
         self[dtype..'_ans'] = quesFile:read('ans_'..dtype):all();
         self[dtype..'_ans_len'] = quesFile:read('ans_length_'..dtype):all();
-        self[dtype..'_ans_ind'] = quesFile:read('ans_index_'..dtype):all():long();
+        if dtype ~= 'test' then
+            self[dtype..'_ans_ind'] = quesFile:read('ans_index_'..dtype):all():long();
+        end
 
         -- read image list, if image features are needed
         if opt.useIm then
@@ -97,6 +104,11 @@ function dataloader:initialize(opt, subsets)
             self[dtype..'_opt'] = quesFile:read('opt_'..dtype):all():long();
             self[dtype..'_opt_len'] = quesFile:read('opt_length_'..dtype):all();
             self[dtype..'_opt_list'] = quesFile:read('opt_list_'..dtype):all();
+            self.numOptions = self[dtype..'_opt']:size(3);
+        end
+
+        if dtype == 'test' then
+            self[dtype..'_num_rounds'] = quesFile:read('num_rounds_'..dtype):all();
         end
 
         -- assume similar stats across multiple data subsets
@@ -106,10 +118,6 @@ function dataloader:initialize(opt, subsets)
         self.maxQuesLen = self[dtype..'_ques']:size(3);
         -- maximum length of answer
         self.maxAnsLen = self[dtype..'_ans']:size(3);
-        -- number of options, if read
-        if self[dtype..'_opt'] then
-            self.numOptions = self[dtype..'_opt']:size(3);
-        end
 
         -- if history is needed
         if opt.useHistory then
@@ -178,11 +186,13 @@ function dataloader:processAnswers(dtype)
 
                 decodeOut[thId][roundId][{{1, length}}]
                                 = answers[thId][roundId][{{1, length}}];
-                decodeOut[thId][roundId][length+1] = endTokenId;
             else
-                print(string.format('Warning: empty answer at (%d %d %d)',
-                                                    thId, roundId, length))
+                if dtype ~= 'test' then
+                    print(string.format('Warning: empty answer at (%d %d %d)',
+                                                        thId, roundId, length))
+                end
             end
+            decodeOut[thId][roundId][length+1] = endTokenId;
         end
     end
 
@@ -353,11 +363,16 @@ function dataloader.getTestBatch(self, startId, params, dtype)
     if params.decoder == 'disc' then
         batchOutput['options'] = optionOutput:view(optionOutput:size(1)
                                     * optionOutput:size(2), optionOutput:size(3), -1)
-        batchOutput['answer_ind'] = batchOutput['answer_ind']:view(batchOutput['answer_ind']
-                                        :size(1) * batchOutput['answer_ind']:size(2))
+        if dtype ~= 'test' then 
+            batchOutput['answer_ind'] = batchOutput['answer_ind']:view(batchOutput['answer_ind']
+                                            :size(1) * batchOutput['answer_ind']:size(2))
+        end
     elseif params.decoder == 'gen' then
         -- merge both the tables and return
         for key, value in pairs(optionOutput) do batchOutput[key] = value; end
+    end
+    if dtype == 'test' then
+        batchOutput['num_rounds'] = self[dtype..'_num_rounds']:index(1, inds):long()
     end
 
     return batchOutput, nextStartId;
@@ -394,14 +409,12 @@ function dataloader.getIndexData(self, inds, params, dtype)
                                 :index(1, inds)[{{}, {}, {1, maxAnsLen}}];
     local answerOut = self[dtype..'_ans_out']
                                 :index(1, inds)[{{}, {}, {1, maxAnsLen}}];
-    local answerInd = self[dtype..'_ans_ind']:index(1, inds);
 
     local output = {};
     if params.gpuid >= 0 then
         output['ques_fwd'] = quesFwd:cuda();
         output['answer_in'] = answerIn:cuda();
         output['answer_out'] = answerOut:cuda();
-        output['answer_ind'] = answerInd:cuda();
         if history then output['hist'] = history:cuda(); end
         if caption then output['cap'] = caption:cuda(); end
         if imgFeats then output['img_feat'] = imgFeats:cuda(); end
@@ -409,10 +422,14 @@ function dataloader.getIndexData(self, inds, params, dtype)
         output['ques_fwd'] = quesFwd:contiguous();
         output['answer_in'] = answerIn:contiguous();
         output['answer_out'] = answerOut:contiguous();
-        output['answer_ind'] = answerInd:contiguous()
         if history then output['hist'] = history:contiguous(); end
         if caption then output['cap'] = caption:contiguous(); end
         if imgFeats then output['img_feat'] = imgFeats:contiguous(); end
+    end
+
+    if dtype ~= 'test' then
+        local answerInd = self[dtype..'_ans_ind']:index(1, inds);
+        output['answer_ind'] = params.gpuid >= 0 and answerInd:cuda() or answerInd:contiguous();
     end
 
     return output;
@@ -434,11 +451,30 @@ function dataloader.getIndexOption(self, inds, params, dtype)
         optionIn = optionIn:view(optInds:size(1), optInds:size(2),
                                                 optInds:size(3), -1);
         optionIn = optionIn[{{}, {}, {}, {1, maxOptLen}}];
+        if dtype == 'test' then
+            -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
+            local optionInTest = torch.zeros(optionIn:size(1), 10, optionIn:size(3), optionIn:size(4)):int()
+            local numRounds = self[dtype..'_num_rounds']:index(1, inds):long()
+            for i = 1, numRounds:size(1) do
+                optionInTest[{{i}, {numRounds[i]}}] = optionIn[i]
+            end
+            optionIn = optionInTest
+        end
 
         optionOut = self[dtype..'_opt_out']:index(1, indVector);
         optionOut = optionOut:view(optInds:size(1), optInds:size(2),
                                                 optInds:size(3), -1);
         optionOut = optionOut[{{}, {}, {}, {1, maxOptLen}}];
+        if dtype == 'test' then
+            -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
+            local optionOutTest = torch.zeros(optionOut:size(1), 10, optionOut:size(3), optionOut:size(4)):int()
+            local numRounds = self[dtype..'_num_rounds']:index(1, inds):long()
+            for i = 1, numRounds:size(1) do
+                optionOutTest[{{i}, {numRounds[i]}}] = optionOut[i]
+            end
+            optionOut = optionOutTest
+        end
+
 
         if params.gpuid >= 0 then
             output['option_in'] = optionIn:cuda();
@@ -450,10 +486,20 @@ function dataloader.getIndexOption(self, inds, params, dtype)
     elseif params.decoder == 'disc' then
         local optInds = self[dtype .. '_opt']:index(1, inds)
         local indVector = optInds:view(-1)
-
+    
         local optionIn = self[dtype .. '_opt_list']:index(1, indVector)
 
         optionIn = optionIn:view(optInds:size(1), optInds:size(2), optInds:size(3), -1)
+
+        if dtype == 'test' then
+            -- convert optionIn to keep options for n-th (last) round and zeros for other rounds
+            local optionInTest = torch.zeros(optionIn:size(1), 10, optionIn:size(3), optionIn:size(4)):int()
+            local numRounds = self[dtype..'_num_rounds']:index(1, inds):long()
+            for i = 1, numRounds:size(1) do
+                optionInTest[{{i}, {numRounds[i]}}] = optionIn[i]
+            end
+            optionIn = optionInTest
+        end
 
         output = optionIn
 

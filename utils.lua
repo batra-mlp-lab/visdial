@@ -104,9 +104,17 @@ end
 -- process the scores and obtain the ranks
 -- input: scores for all options, ground truth positions
 function utils.computeRanks(scores, gtPos)
-    local gtScore = scores:gather(2, gtPos);
-    local ranks = scores:gt(gtScore:expandAs(scores));
-    ranks = ranks:sum(2) + 1;
+    -- simply sort according to scores if ground truth not available
+    local ranks;
+    if gtPos then
+        gtPos = gtPos:view(-1, 1);
+        local gtScore = scores:gather(2, gtPos);
+        ranks = scores:gt(gtScore:expandAs(scores));
+        ranks = ranks:sum(2) + 1;
+    else
+        -- sort in descending order - largest score gets highest rank
+        sorted, ranks = scores:sort(2, true)
+    end
 
     -- convert into double
     return ranks:double();
