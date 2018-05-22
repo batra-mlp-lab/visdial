@@ -65,7 +65,6 @@ function encoderNet.model(params)
     local qh2 = nn.Tanh()(nn.Linear(params.rnnHiddenSize, params.rnnHiddenSize)(nn.CAddTable(){hAttTr, nn.View(-1, params.rnnHiddenSize)(qEmbedView)}))
 
     -- image attention (inspired by SAN, Yang et al., CVPR16)
-    local img_feat_size = {1, 14, 14, 512}
     local img_tr_size = params.rnnHiddenSize
     local rnn_size = params.rnnHiddenSize
     local common_embedding_size = params.commonEmbeddingSize or 512
@@ -74,25 +73,25 @@ function encoderNet.model(params)
     local u = qh2
     local img_tr = nn.Dropout(0.5)(
                     nn.Tanh()(
-                        nn.View(-1, img_feat_size[2] * img_feat_size[3], img_tr_size)(
-                            nn.Linear(img_feat_size[4], img_tr_size)(
-                                nn.View(img_feat_size[4]):setNumInputDims(2)(img_feats)))))
+                        nn.View(-1, params.imgSpatialSize * params.imgSpatialSize, img_tr_size)(
+                            nn.Linear(params.imgFeatureSize, img_tr_size)(
+                                nn.View(params.imgFeatureSize):setNumInputDims(2)(img_feats)))))
 
     for i = 1, num_attention_layer do
 
         -- linear layer: 14x14x1024 -> 14x14x512
-        local img_common = nn.View(-1, img_feat_size[2] * img_feat_size[3], common_embedding_size)(
+        local img_common = nn.View(-1, params.imgSpatialSize * params.imgSpatialSize, common_embedding_size)(
                             nn.Linear(img_tr_size, common_embedding_size)(
                                 nn.View(-1, img_tr_size)(img_tr)))
 
         -- replicate lstm state 196 times
         local ques_common = nn.Linear(rnn_size, common_embedding_size)(u)
-        local ques_repl = nn.Replicate(img_feat_size[2] * img_feat_size[3], 2)(ques_common)
+        local ques_repl = nn.Replicate(params.imgSpatialSize * params.imgSpatialSize, 2)(ques_common)
 
         -- add image and question features (both 196x512)
         local img_ques_common = nn.Dropout(0.5)(nn.Tanh()(nn.CAddTable()({img_common, ques_repl})))
         local h = nn.Linear(common_embedding_size, 1)(nn.View(-1, common_embedding_size)(img_ques_common))
-        local p = nn.SoftMax()(nn.View(-1, img_feat_size[2] * img_feat_size[3])(h))
+        local p = nn.SoftMax()(nn.View(-1, params.imgSpatialSize * params.imgSpatialSize)(h))
 
         -- weighted sum of image features
         local p_att = nn.View(1, -1):setNumInputDims(1)(p)

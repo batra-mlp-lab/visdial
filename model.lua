@@ -259,10 +259,9 @@ function Model:forwardBackward(batch, onlyForward, encOutOnly)
         local imgFeats = batch['img_feat']
         -- if attention, then conv layer features
         if string.match(self.params.encoder, 'att') then
-            local imgFeatsSize = imgFeats:size()
-            imgFeats = imgFeats:view(imgFeatsSize[1], 1, imgFeatsSize[2], imgFeatsSize[3], imgFeatsSize[4])
+            imgFeats = imgFeats:view(-1, 1, params.imgSpatialSize, params.imgSpatialSize, params.imgFeatureSize)
             imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1, 1, 1)
-            imgFeats = imgFeats:view(imgFeatsSize[1], imgFeatsSize[2], imgFeatsSize[3], imgFeatsSize[4])
+            imgFeats = imgFeats:view(-1, params.imgSpatialSize, params.imgSpatialSize, params.imgFeatureSize)
         else
             imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
             imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
@@ -352,10 +351,9 @@ function Model:retrieveBatch(batch)
         local imgFeats = batch['img_feat']
         -- if attention, then conv layer features
         if string.match(self.params.encoder, 'att') then
-            local imgFeatsSize = imgFeats:size()
-            imgFeats = imgFeats:view(imgFeatsSize[1], 1, imgFeatsSize[2], imgFeatsSize[3], imgFeatsSize[4])
+            imgFeats = imgFeats:view(-1, 1, params.imgSpatialSize, params.imgSpatialSize, params.imgFeatureSize)
             imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1, 1, 1)
-            imgFeats = imgFeats:view(imgFeatsSize[1], imgFeatsSize[2], imgFeatsSize[3], imgFeatsSize[4])
+            imgFeats = imgFeats:view(-1, params.imgSpatialSize, params.imgSpatialSize, params.imgFeatureSize)
         else
             imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
             imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
