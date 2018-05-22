@@ -259,9 +259,9 @@ function Model:forwardBackward(batch, onlyForward, encOutOnly)
         local imgFeats = batch['img_feat']
         -- if attention, then conv layer features
         if string.match(self.params.encoder, 'att') then
-            imgFeats = imgFeats:view(-1, 1, params.imgSpatialSize, params.imgSpatialSize, params.imgFeatureSize)
+            imgFeats = imgFeats:view(-1, 1, self.params.imgSpatialSize, self.params.imgSpatialSize, self.params.imgFeatureSize)
             imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1, 1, 1)
-            imgFeats = imgFeats:view(-1, params.imgSpatialSize, params.imgSpatialSize, params.imgFeatureSize)
+            imgFeats = imgFeats:view(-1, self.params.imgSpatialSize, self.params.imgSpatialSize, self.params.imgFeatureSize)
         else
             imgFeats = imgFeats:view(-1, 1, self.params.imgFeatureSize)
             imgFeats = imgFeats:repeatTensor(1, self.params.maxQuesCount, 1)
