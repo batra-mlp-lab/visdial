@@ -16,10 +16,11 @@ cmd:option('-imgNorm', 1, 'normalize the image feature. 1=yes, 0=no')
 
 -- model params
 cmd:option('-imgEmbedSize', 300, 'Size of the multimodal embedding')
-cmd:option('-imgFeatureSize', 4096, 'Size of the image feature');
+cmd:option('-imgFeatureSize', 4096, 'Channel size of the image feature')
+cmd:option('-imgSpatialSize', 14, 'Spatial size of image features (for attention-based encoders).')
 cmd:option('-embedSize', 300, 'Size of input word embeddings')
 cmd:option('-rnnHiddenSize', 512, 'Size of the LSTM state')
-cmd:option('-maxHistoryLen', 60, 'Maximum history to consider when using concatenated QA pairs');
+cmd:option('-maxHistoryLen', 60, 'Maximum history to consider when using concatenated QA pairs')
 cmd:option('-numLayers', 2, 'Number of layers in LSTM')
 cmd:option('-commonEmbeddingSize', 512, 'Common embedding size in MN-ATT-QIH')
 cmd:option('-numAttentionLayers', 1, 'No. of attention hops in MN-ATT-QIH')

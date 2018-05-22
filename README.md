@@ -136,6 +136,8 @@ Similarly, to train a Memory Network model with question, image and history info
 th train.lua -encoder mn-ques-im-hist -decoder disc -gpuid 0
 ```
 
+**Note:** For attention based encoders, set both `imgSpatialSize` and `imgFeatureSize` command line params, feature dimensions are interpreted as `(batch X spatial X spatial X feature)`. For other encoders, `imgSpatialSize` is redundant.
+
 The training script saves model snapshots at regular intervals in the `checkpoints/` folder.
 
 It takes about 15-20 epochs to train models with generative decoding to convergence, and 4-8 epochs for discriminative decoding.
