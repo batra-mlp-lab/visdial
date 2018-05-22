@@ -19,6 +19,9 @@ def tokenize_data(data, word_count=False):
         img_id = i['image_id']
         caption = word_tokenize(i['caption'])
         res[img_id] = {'caption': caption}
+        if word_count == True:
+            for word in caption:
+                word_counts[word] = word_counts.get(word, 0) + 1
 
     print('Tokenizing questions...')
     ques_toks, ans_toks = [], []
@@ -40,7 +43,7 @@ def tokenize_data(data, word_count=False):
         if word_count == True:
             for j in range(10):
                 question = ques_toks[i['dialog'][j]['question']]
-                answer = ans_toks[i['dialog'][j]['answer']] 
+                answer = ans_toks[i['dialog'][j]['answer']]
                 for word in question + answer:
                     word_counts[word] = word_counts.get(word, 0) + 1
 

@@ -29,7 +29,7 @@ function encoderNet.model(params)
     if dropout > 0 then
         enc:add(nn.Dropout(dropout))
     end
-    enc:add(nn.Linear(params.rnnHiddenSize, 512))
+    enc:add(nn.Linear(params.rnnHiddenSize, params.rnnHiddenSize))
     enc:add(nn.Tanh())
 
     return enc;
