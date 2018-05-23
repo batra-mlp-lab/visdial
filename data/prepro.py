@@ -98,58 +98,49 @@ def encode_vocab(data, word2ind):
     return data
 
 
-def create_data_mats(data, args, dtype):
-    num_threads = len(data['data']['dialogs'].keys())
+def create_data_mats(data, params, dtype):
+    num_threads = len(data['data']['dialogs'])
     data_mats = {}
+    data_mats['img_pos'] = np.arange(num_threads, dtype=np.int)
 
-    print("[%s] Creating image id and caption data matrices..." % data['split'])
+    print("[%s] Creating caption data matrices..." % data['split'])
     max_cap_len = params.max_cap_len
     captions = np.zeros([num_threads, max_cap_len])
     caption_len = np.zeros(num_threads, dtype=np.int)
-    image_ids = [dialog['image_id'] for dialog in data['data']['dialogs']]
-    image_list = []
 
     for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
         caption_len[i] = len(dialog['caption_tokens'][0:max_cap_len])
         captions[i][0:caption_len[i]] = dialog['caption_tokens'][0:max_cap_len]
-
-    for image_id in tqdm(image_ids):
-        path = '%s2014/COCO_%s2014_%012d.jpg'
-        if dtype == 'test':
-            path = '%s2017/VisualDialog_%s2017_%012d.jpg'
-        image_list.append(path % (dtype, dtype, image_id))
-
-    data_mats['cap_length_' + dtype] = caption_len
-    data_mats['cap_' + dtype] = captions
-    data_mats['img_pos_' + dtype] = np.arange(len(image_ids), dtype=np.int)
+    data_mats['cap_length'] = caption_len
+    data_mats['cap'] = captions
 
     print("[%s] Creating question and answer data matrices..." % data['split'])
     num_rounds = 10
     max_ques_len = params.max_ques_len
     max_ans_len = params.max_ans_len
 
-    q = np.zeros([num_threads, num_rounds, max_ques_len])
-    a = np.zeros([num_threads, num_rounds, max_ans_len])
-    q_len = np.zeros([num_threads, num_rounds], dtype=np.int)
-    a_len = np.zeros([num_threads, num_rounds], dtype=np.int)
+    ques = np.zeros([num_threads, num_rounds, max_ques_len])
+    ans = np.zeros([num_threads, num_rounds, max_ans_len])
+    ques_length = np.zeros([num_threads, num_rounds], dtype=np.int)
+    ans_length = np.zeros([num_threads, num_rounds], dtype=np.int)
 
     for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
         for j in range(num_rounds):
             if dialog['dialog'][j]['question'] != -1:
-                q_len[i][j] = len(data['data']['question_tokens'][
+                ques_length[i][j] = len(data['data']['question_tokens'][
                     dialog['dialog'][j]['question']][0:max_ques_len])
-                q[i][j][0:q_len[i][j]] = data['data']['question_tokens'][
+                ques[i][j][0:ques_length[i][j]] = data['data']['question_tokens'][
                     dialog['dialog'][j]['question']][0:max_ques_len]
             if dialog['dialog'][j]['answer'] != -1:
-                a_len[i][j] = len(data['data']['answer_tokens'][
+                ans_length[i][j] = len(data['data']['answer_tokens'][
                     dialog['dialog'][j]['answer']][0:max_ans_len])
-                a[i][j][0:a_len[i][j]] = data['data']['answer_tokens'][
+                ans[i][j][0:ans_length[i][j]] = data['data']['answer_tokens'][
                     dialog['dialog'][j]['answer']][0:max_ans_len]
 
-    data_mats['ques_' + dtype] = q
-    data_mats['ans_' + dtype] = a
-    data_mats['ques_length_' + dtype] = q_len
-    data_mats['ans_length_' + dtype] = a_len
+    data_mats['ques'] = ques
+    data_mats['ans'] = ans
+    data_mats['ques_length'] = ques_length
+    data_mats['ans_length'] = ans_length
 
     print("[%s] Creating options data matrices..." % data['split'])
     if dtype == 'test':
@@ -160,7 +151,7 @@ def create_data_mats(data, args, dtype):
                 # options and answer_index are 1-indexed specifically for lua
                 num_rounds_list[i] = dialog['num_rounds']
             options[i][0] = np.array(dialog['dialog'][num_rounds_list[i] - 1]['answer_options']) + 1
-        data_mats['num_rounds_' + dtype] = num_rounds_list
+        data_mats['num_rounds'] = num_rounds_list
     else:
         answer_index = np.zeros([num_threads, num_rounds])
         options = np.zeros([num_threads, num_rounds, 100])
@@ -168,19 +159,29 @@ def create_data_mats(data, args, dtype):
             for j in range(num_rounds):
                 answer_index[i][j] = dialog['dialog'][j]['gt_index'] + 1
                 options[i][j] = np.array(dialog['dialog'][j]['answer_options']) + 1
-        data_mats['ans_index_' + dtype] = num_rounds_list
-    data_mats['opt_' + dtype] = options
+        data_mats['ans_index'] = answer_index
+    data_mats['opt'] = options
 
     options_len = np.zeros(len(data['data']['answer_tokens']), dtype=np.int)
     options_list = np.zeros([len(data['data']['answer_tokens']), max_ans_len])
 
-    for i, a in enumerate(tqdm(data['data']['answer_tokens'])):
-        options_len[i] = len(a[0:max_ans_len])
-        options_list[i][0:options_len[i]] = a[i][0:max_ans_len]
+    for i, ans_token in enumerate(tqdm(data['data']['answer_tokens'])):
+        options_len[i] = len(ans_token[0:max_ans_len])
+        options_list[i][0:options_len[i]] = ans_token[0:max_ans_len]
 
-    data_mats['opt_length_' + dtype] = options_len
-    data_mats['opt_list_' + dtype] = options_list
+    data_mats['opt_length'] = options_len
+    data_mats['opt_list'] = options_list
     return data_mats
+
+
+def get_image_ids(data, dtype):
+    image_ids = [dialog['image_id'] for dialog in data['data']['dialogs']]
+    for i, image_id in enumerate(image_ids):
+        path = '%s2014/COCO_%s2014_%012d.jpg'
+        if dtype == 'test':
+            path = '%s2017/VisualDialog_%s2017_%012d.jpg'
+        image_ids[i] = path % (dtype, dtype, image_id)
+    return image_ids
 
 
 if __name__ == "__main__":
@@ -232,87 +233,42 @@ if __name__ == "__main__":
         data_test = encode_vocab(data_test, word2ind)
 
     print('Creating data matrices...')
-    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list, _ = create_data_mats(data_train, args, 'train')
-    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list, _ = create_data_mats(data_val, args, 'val')
+    data_mats_train = create_data_mats(data_train, args, 'train')
+    data_mats_val = create_data_mats(data_val, args, 'val')
 
     if args.train_split == 'trainval':
-        captions_trainval = np.concatenate((captions_train, captions_val), axis = 0)
-        captions_trainval_len = np.concatenate((captions_train_len, captions_val_len), axis = 0)
-        questions_trainval = np.concatenate((questions_train, questions_val), axis = 0)
-        questions_trainval_len = np.concatenate((questions_train_len, questions_val_len), axis = 0)
-        answers_trainval = np.concatenate((answers_train, answers_val), axis = 0)
-        answers_trainval_len = np.concatenate((answers_train_len, answers_val_len), axis = 0)
-        options_trainval = np.concatenate((options_train, options_val + len(ans_train_inds)), axis = 0)
-        options_trainval_list = np.concatenate((options_train_list, options_val_list), axis = 0)
-        options_trainval_len = np.concatenate((options_train_len, options_val_len), axis = 0)
-        answers_trainval_index = np.concatenate((answers_train_index, answers_val_index), axis = 0)
-        images_trainval_index = np.concatenate((images_train_index, images_val_index + images_train_index.shape[0]), axis = 0)
-        images_trainval_list = images_train_list + images_val_list
+        data_mats_trainval = {}
+        for key in data_mats_train:
+            data_mats_trainval[key] = np.concatenate((data_mats_train[key],
+                                                      data_mats_val[key]), axis = 0)
 
-        captions_test, captions_test_len, questions_test, questions_test_len, answers_test, answers_test_len, options_test, options_test_list, options_test_len, _, images_test_index, images_test_list, num_rounds_test = create_data_mats(data_test_toks, ques_test_inds, ans_test_inds, args, 'test')
+        data_mats_test = create_data_mats(data_test, args, 'test')
 
     print('Saving hdf5...')
     f = h5py.File(args.output_h5, 'w')
     if args.train_split == 'train':
-        f.create_dataset('ques_train', dtype='uint32', data=questions_train)
-        f.create_dataset('ques_length_train', dtype='uint32', data=questions_train_len)
-        f.create_dataset('ans_train', dtype='uint32', data=answers_train)
-        f.create_dataset('ans_length_train', dtype='uint32', data=answers_train_len)
-        f.create_dataset('ans_index_train', dtype='uint32', data=answers_train_index)
-        f.create_dataset('cap_train', dtype='uint32', data=captions_train)
-        f.create_dataset('cap_length_train', dtype='uint32', data=captions_train_len)
-        f.create_dataset('opt_train', dtype='uint32', data=options_train)
-        f.create_dataset('opt_length_train', dtype='uint32', data=options_train_len)
-        f.create_dataset('opt_list_train', dtype='uint32', data=options_train_list)
-        f.create_dataset('img_pos_train', dtype='uint32', data=images_train_index)
+        for key in data_mats_train:
+            f.create_dataset(key + '_train', dtype='uint32', data=data_mats_train[key])
 
-        f.create_dataset('ques_val', dtype='uint32', data=questions_val)
-        f.create_dataset('ques_length_val', dtype='uint32', data=questions_val_len)
-        f.create_dataset('ans_val', dtype='uint32', data=answers_val)
-        f.create_dataset('ans_length_val', dtype='uint32', data=answers_val_len)
-        f.create_dataset('ans_index_val', dtype='uint32', data=answers_val_index)
-        f.create_dataset('cap_val', dtype='uint32', data=captions_val)
-        f.create_dataset('cap_length_val', dtype='uint32', data=captions_val_len)
-        f.create_dataset('opt_val', dtype='uint32', data=options_val)
-        f.create_dataset('opt_length_val', dtype='uint32', data=options_val_len)
-        f.create_dataset('opt_list_val', dtype='uint32', data=options_val_list)
-        f.create_dataset('img_pos_val', dtype='uint32', data=images_val_index)
+        for key in data_mats_val:
+            f.create_dataset(key + '_val', dtype='uint32', data=data_mats_val[key])
 
     elif args.train_split == 'trainval':
-        f.create_dataset('ques_train', dtype='uint32', data=questions_trainval)
-        f.create_dataset('ques_length_train', dtype='uint32', data=questions_trainval_len)
-        f.create_dataset('ans_train', dtype='uint32', data=answers_trainval)
-        f.create_dataset('ans_length_train', dtype='uint32', data=answers_trainval_len)
-        f.create_dataset('ans_index_train', dtype='uint32', data=answers_trainval_index)
-        f.create_dataset('cap_train', dtype='uint32', data=captions_trainval)
-        f.create_dataset('cap_length_train', dtype='uint32', data=captions_trainval_len)
-        f.create_dataset('opt_train', dtype='uint32', data=options_trainval)
-        f.create_dataset('opt_length_train', dtype='uint32', data=options_trainval_len)
-        f.create_dataset('opt_list_train', dtype='uint32', data=options_trainval_list)
-        f.create_dataset('img_pos_train', dtype='uint32', data=images_trainval_index)
+        for key in data_mats_trainval:
+            f.create_dataset(key + '_train', dtype='uint32', data=data_mats_trainval[key])
 
-        f.create_dataset('ques_test', dtype='uint32', data=questions_test)
-        f.create_dataset('ques_length_test', dtype='uint32', data=questions_test_len)
-        f.create_dataset('ans_test', dtype='uint32', data=answers_test)
-        f.create_dataset('ans_length_test', dtype='uint32', data=answers_test_len)
-        f.create_dataset('cap_test', dtype='uint32', data=captions_test)
-        f.create_dataset('cap_length_test', dtype='uint32', data=captions_test_len)
-        f.create_dataset('opt_test', dtype='uint32', data=options_test)
-        f.create_dataset('opt_length_test', dtype='uint32', data=options_test_len)
-        f.create_dataset('opt_list_test', dtype='uint32', data=options_test_list)
-        f.create_dataset('img_pos_test', dtype='uint32', data=images_test_index)
-        f.create_dataset('num_rounds_test', dtype='uint32', data=num_rounds_test)
-
+        for key in data_mats_test:
+            f.create_dataset(key + '_test', dtype='uint32', data=data_mats_test[key])
     f.close()
 
     out = {}
     out['ind2word'] = ind2word
     out['word2ind'] = word2ind
     if args.train_split == 'train':
-        out['unique_img_train'] = images_train_list
-        out['unique_img_val'] = images_val_list
+        out['unique_img_train'] = get_image_ids(data_train, 'train')
+        out['unique_img_val'] = get_image_ids(data_val, 'val')
     elif args.train_split == 'trainval':
-        out['unique_img_train'] = images_trainval_list
-        out['unique_img_test'] = images_test_list
-
+        out['unique_img_train'] = get_image_ids(data_train, 'train') + \
+                                  get_image_ids(data_val, 'val')
+        out['unique_img_test'] = get_image_ids(data_test, 'test')
     json.dump(out, open(args.output_json, 'w'))
