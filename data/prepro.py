@@ -4,50 +4,77 @@ import h5py
 import argparse
 import numpy as np
 from nltk.tokenize import word_tokenize
+from tqdm import tqdm
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-download', action='store_true', help='Whether to download VisDial v0.9 data')
+parser.add_argument('-train_split', default='train', help='Choose the data split: train | trainval', choices=['train', 'trainval'])
+
+# Input files
+parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
+parser.add_argument('-input_json_val', default='visdial_0.9_val.json', help='Input `val` json file')
+parser.add_argument('-input_json_test', default='visdial_0.9_test.json', help='Input `test` json file')
+
+# Output files
+parser.add_argument('-output_json', default='visdial_params.json', help='Output json file')
+parser.add_argument('-output_h5', default='visdial_data.h5', help='Output hdf5 file')
+
+# Options
+parser.add_argument('-max_ques_len', default=20, type=int, help='Max length of questions')
+parser.add_argument('-max_ans_len', default=20, type=int, help='Max length of answers')
+parser.add_argument('-max_cap_len', default=40, type=int, help='Max length of captions')
+parser.add_argument('-word_count_threshold', default=5, type=int, help='Min threshold of word count to include in vocabulary')
+
 
 def tokenize_data(data, word_count=False):
-    '''
-    Tokenize captions, questions and answers
-    Also maintain word count if required
-    '''
-    res, word_counts = {}, {}
-
+    """Tokenize captions, questions and answers, maintain word count 
+    if required.
+    """
     print('Tokenizing data for %s...' % data['split'])
-    print('Tokenizing captions...')
+    word_counts = {}
+    dialogs = data['data']['dialogs']
+    # dialogs is a nested dict so won't be copied, just a reference
 
-    for i in data['data']['dialogs']:
-        img_id = i['image_id']
-        caption = word_tokenize(i['caption'])
-        res[img_id] = {'caption': caption}
-        if word_count == True:
-            for word in caption:
-                word_counts[word] = word_counts.get(word, 0) + 1
+    print('Tokenizing captions...')
+    for index, dialog in enumerate(tqdm(dialogs)):
+        caption = word_tokenize(dialog['caption'])
+        dialogs[index]['caption_tokens'] = caption
 
     print('Tokenizing questions...')
-    ques_toks, ans_toks = [], []
-    for i in data['data']['questions']:
-        ques_toks.append(word_tokenize(i + '?'))
+    question_tokens = []
+    for question in tqdm(data['data']['questions']):
+        question_tokens.append(word_tokenize(question + '?'))
+    data['data']['question_tokens'] = question_tokens
+
     print('Tokenizing answers...')
-    for i in data['data']['answers']:
-        ans_toks.append(word_tokenize(i))
+    answer_tokens = []
+    for answer in tqdm(data['data']['answers']):
+        answer_tokens.append(word_tokenize(answer))
+    data['data']['answer_tokens'] = answer_tokens
 
-    for i in data['data']['dialogs']:
+    print('Filling missing values in dialog rounds, if any...')
+    for index, dialog in enumerate(tqdm(dialogs)):
         # last round of dialog will not have answer for test split
-        if 'answer' not in i['dialog'][-1]:
-            i['dialog'][-1]['answer'] = -1
-        res[i['image_id']]['num_rounds'] = len(i['dialog'])
-        # right-pad i['dialog'] with empty question-answer pairs at the end
-        while len(i['dialog']) < 10:
-            i['dialog'].append({'question': -1, 'answer': -1})
-        res[i['image_id']]['dialog'] = i['dialog']
-        if word_count == True:
-            for j in range(10):
-                question = ques_toks[i['dialog'][j]['question']]
-                answer = ans_toks[i['dialog'][j]['answer']]
-                for word in question + answer:
-                    word_counts[word] = word_counts.get(word, 0) + 1
+        if 'answer' not in dialog['dialog'][-1]:
+            dialog['dialog'][-1]['answer'] = -1
+        # right-pad dialog with empty question-answer pairs at the end
+        while len(dialog['dialog']) < 10:
+            dialog['dialog'].append({'question': -1, 'answer': -1})
+        dialogs[index] = dialog
 
-    return res, ques_toks, ans_toks, word_counts
+    if word_count:
+        print('Building word counts from tokens...\n')
+        for index, dialog in enumerate(tqdm(dialogs)):
+            caption = dialogs[index]['caption_tokens']
+            all_qa = []
+            for j in range(10):
+                all_qa += question_tokens[dialog['dialog'][j]['question']]
+                all_qa += answer_tokens[dialog['dialog'][j]['answer']]
+            for word in caption + all_qa:
+                word_counts[word] = word_counts.get(word, 0) + 1
+
+    return data, word_counts
 
 def encode_vocab(data_toks, ques_toks, ans_toks, word2ind):
     '''
@@ -150,27 +177,6 @@ def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
 
 
 if __name__ == "__main__":
-
-    parser = argparse.ArgumentParser()
-
-    parser.add_argument('-download', default=0, type=int, help='Whether to download VisDial v0.9 data')
-    parser.add_argument('-train_split', default='train', help='Choose the data split: train | trainval', choices=['train', 'trainval'])
-
-    # Input files
-    parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
-    parser.add_argument('-input_json_val', default='visdial_0.9_val.json', help='Input `val` json file')
-    parser.add_argument('-input_json_test', default='visdial_0.9_test.json', help='Input `test` json file')
-
-    # Output files
-    parser.add_argument('-output_json', default='visdial_params.json', help='Output json file')
-    parser.add_argument('-output_h5', default='visdial_data.h5', help='Output hdf5 file')
-
-    # Options
-    parser.add_argument('-max_ques_len', default=20, type=int, help='Max length of questions')
-    parser.add_argument('-max_ans_len', default=20, type=int, help='Max length of answers')
-    parser.add_argument('-max_cap_len', default=40, type=int, help='Max length of captions')
-    parser.add_argument('-word_count_threshold', default=5, type=int, help='Min threshold of word count to include in vocabulary')
-
     args = parser.parse_args()
 
     if args.download == 1:
