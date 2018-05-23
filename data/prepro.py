@@ -56,6 +56,7 @@ def tokenize_data(data, word_count=False):
         if 'answer' not in dialog['dialog'][-1]:
             dialog['dialog'][-1]['answer'] = -1
         # right-pad dialog with empty question-answer pairs at the end
+        dialog['num_rounds'] = len(dialog['dialog'])
         while len(dialog['dialog']) < 10:
             dialog['dialog'].append({'question': -1, 'answer': -1})
         dialogs[i] = dialog
@@ -97,78 +98,89 @@ def encode_vocab(data, word2ind):
     return data
 
 
-def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
-    num_threads = len(data_toks.keys())
+def create_data_mats(data, args, dtype):
+    num_threads = len(data['data']['dialogs'].keys())
+    data_mats = {}
 
-    print('Creating data mats for %s...' % dtype)
-    
-    # create image lists and caption data mats
-    image_list = []
-    image_index = np.zeros(num_threads)
+    print("[%s] Creating image id and caption data matrices..." % data['split'])
     max_cap_len = params.max_cap_len
     captions = np.zeros([num_threads, max_cap_len])
     caption_len = np.zeros(num_threads, dtype=np.int)
-    image_ids = list(data_toks.keys())
+    image_ids = [dialog['image_id'] for dialog in data['data']['dialogs']]
+    image_list = []
 
-    for i in range(num_threads):
-        image_id = image_ids[i]
+    for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
+        caption_len[i] = len(dialog['caption_tokens'][0:max_cap_len])
+        captions[i][0:caption_len[i]] = dialog['caption_tokens'][0:max_cap_len]
+
+    for image_id in tqdm(image_ids):
+        path = '%s2014/COCO_%s2014_%012d.jpg'
         if dtype == 'test':
-            image_list.append('test2017/VisualDialog_test2017_%012d.jpg' % (image_id))
-        else:
-            image_list.append('%s2014/COCO_%s2014_%012d.jpg' % (dtype, dtype, image_id))
-        image_index[i] = i
-        caption_len[i] = len(data_toks[image_id]['caption_inds'][0:max_cap_len])
-        captions[i][0:caption_len[i]] = data_toks[image_id]['caption_inds'][0:max_cap_len]
+            path = '%s2017/VisualDialog_%s2017_%012d.jpg'
+        image_list.append(path % (dtype, dtype, image_id))
 
+    data_mats['cap_length_' + dtype] = caption_len
+    data_mats['cap_' + dtype] = captions
+    data_mats['img_pos_' + dtype] = np.arange(len(image_ids), dtype=np.int)
+
+    print("[%s] Creating question and answer data matrices..." % data['split'])
     num_rounds = 10
     max_ques_len = params.max_ques_len
     max_ans_len = params.max_ans_len
 
-    questions = np.zeros([num_threads, num_rounds, max_ques_len])
-    answers = np.zeros([num_threads, num_rounds, max_ans_len])
-    question_len = np.zeros([num_threads, num_rounds], dtype=np.int)
-    answer_len = np.zeros([num_threads, num_rounds], dtype=np.int)
+    q = np.zeros([num_threads, num_rounds, max_ques_len])
+    a = np.zeros([num_threads, num_rounds, max_ans_len])
+    q_len = np.zeros([num_threads, num_rounds], dtype=np.int)
+    a_len = np.zeros([num_threads, num_rounds], dtype=np.int)
 
-    # create questions and answers data mats
-    for i in range(num_threads):
-        image_id = image_ids[i]
+    for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
         for j in range(num_rounds):
-            if data_toks[image_id]['dialog'][j]['question'] != -1:
-                question_len[i][j] = len(ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len])
-                questions[i][j][0:question_len[i][j]] = ques_inds[data_toks[image_id]['dialog'][j]['question']][0:max_ques_len]
-            if data_toks[image_id]['dialog'][j]['answer'] != -1:
-                answer_len[i][j] = len(ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len])
-                answers[i][j][0:answer_len[i][j]] = ans_inds[data_toks[image_id]['dialog'][j]['answer']][0:max_ans_len]
+            if dialog['dialog'][j]['question'] != -1:
+                q_len[i][j] = len(data['data']['question_tokens'][
+                    dialog['dialog'][j]['question']][0:max_ques_len])
+                q[i][j][0:q_len[i][j]] = data['data']['question_tokens'][
+                    dialog['dialog'][j]['question']][0:max_ques_len]
+            if dialog['dialog'][j]['answer'] != -1:
+                a_len[i][j] = len(data['data']['answer_tokens'][
+                    dialog['dialog'][j]['answer']][0:max_ans_len])
+                a[i][j][0:a_len[i][j]] = data['data']['answer_tokens'][
+                    dialog['dialog'][j]['answer']][0:max_ans_len]
 
-    # create ground truth answer and options data mats
-    answer_index = np.zeros([num_threads, num_rounds])
-    num_rounds_list = np.full(num_threads, 10)
+    data_mats['ques_' + dtype] = q
+    data_mats['ans_' + dtype] = a
+    data_mats['ques_length_' + dtype] = q_len
+    data_mats['ans_length_' + dtype] = a_len
+
+    print("[%s] Creating options data matrices..." % data['split'])
     if dtype == 'test':
-        # dtype=test has options only for the last rounsd
+        num_rounds_list = np.full(num_threads, 10)
         options = np.zeros([num_threads, 1, 100])
+        for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
+            for j in range(num_rounds):
+                # options and answer_index are 1-indexed specifically for lua
+                num_rounds_list[i] = dialog['num_rounds']
+            options[i][0] = np.array(dialog['dialog'][num_rounds_list[i] - 1]['answer_options']) + 1
+        data_mats['num_rounds_' + dtype] = num_rounds_list
     else:
+        answer_index = np.zeros([num_threads, num_rounds])
         options = np.zeros([num_threads, num_rounds, 100])
+        for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
+            for j in range(num_rounds):
+                answer_index[i][j] = dialog['dialog'][j]['gt_index'] + 1
+                options[i][j] = np.array(dialog['dialog'][j]['answer_options']) + 1
+        data_mats['ans_index_' + dtype] = num_rounds_list
+    data_mats['opt_' + dtype] = options
 
-    for i in range(num_threads):
-        image_id = image_ids[i]
-        for j in range(num_rounds):
-            # options and answer_index are 1-indexed specifically for lua
-            if dtype == 'test':
-                num_rounds_list[i] = data_toks[image_id]['num_rounds']
-                if j == num_rounds_list[i] - 1:
-                    options[i] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
-            else:
-                answer_index[i][j] = data_toks[image_id]['dialog'][j]['gt_index'] + 1
-                options[i][j] = np.array(data_toks[image_id]['dialog'][j]['answer_options']) + 1
+    options_len = np.zeros(len(data['data']['answer_tokens']), dtype=np.int)
+    options_list = np.zeros([len(data['data']['answer_tokens']), max_ans_len])
 
-    options_list = np.zeros([len(ans_inds), max_ans_len])
-    options_len = np.zeros(len(ans_inds), dtype=np.int)
+    for i, a in enumerate(tqdm(data['data']['answer_tokens'])):
+        options_len[i] = len(a[0:max_ans_len])
+        options_list[i][0:options_len[i]] = a[i][0:max_ans_len]
 
-    for i in range(len(ans_inds)):
-        options_len[i] = len(ans_inds[i][0:max_ans_len])
-        options_list[i][0:options_len[i]] = ans_inds[i][0:max_ans_len]
-
-    return captions, caption_len, questions, question_len, answers, answer_len, options, options_list, options_len, answer_index, image_index, image_list, num_rounds_list
+    data_mats['opt_length_' + dtype] = options_len
+    data_mats['opt_list_' + dtype] = options_list
+    return data_mats
 
 
 if __name__ == "__main__":
@@ -220,8 +232,8 @@ if __name__ == "__main__":
         data_test = encode_vocab(data_test, word2ind)
 
     print('Creating data matrices...')
-    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list, _ = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args, 'train')
-    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list, _ = create_data_mats(data_val_toks, ques_val_inds, ans_val_inds, args, 'val')
+    captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list, _ = create_data_mats(data_train, args, 'train')
+    captions_val, captions_val_len, questions_val, questions_val_len, answers_val, answers_val_len, options_val, options_val_list, options_val_len, answers_val_index, images_val_index, images_val_list, _ = create_data_mats(data_val, args, 'val')
 
     if args.train_split == 'trainval':
         captions_trainval = np.concatenate((captions_train, captions_val), axis = 0)
