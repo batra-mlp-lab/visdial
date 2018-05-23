@@ -31,76 +31,71 @@ def tokenize_data(data, word_count=False):
     """Tokenize captions, questions and answers, maintain word count 
     if required.
     """
-    print('Tokenizing data for %s...' % data['split'])
     word_counts = {}
     dialogs = data['data']['dialogs']
     # dialogs is a nested dict so won't be copied, just a reference
 
-    print('Tokenizing captions...')
-    for index, dialog in enumerate(tqdm(dialogs)):
+    print("[%s] Tokenizing captions..." % data['split'])
+    for i, dialog in enumerate(tqdm(dialogs)):
         caption = word_tokenize(dialog['caption'])
-        dialogs[index]['caption_tokens'] = caption
+        dialogs[i]['caption_tokens'] = caption
 
-    print('Tokenizing questions...')
-    question_tokens = []
-    for question in tqdm(data['data']['questions']):
-        question_tokens.append(word_tokenize(question + '?'))
-    data['data']['question_tokens'] = question_tokens
+    print("[%s] Tokenizing questions and answers..." % data['split'])
+    q_tokens, a_tokens = [], []
+    for q in tqdm(data['data']['questions']):
+        q_tokens.append(word_tokenize(q + '?'))
 
-    print('Tokenizing answers...')
-    answer_tokens = []
-    for answer in tqdm(data['data']['answers']):
-        answer_tokens.append(word_tokenize(answer))
-    data['data']['answer_tokens'] = answer_tokens
+    for a in tqdm(data['data']['answers']):
+        a_tokens.append(word_tokenize(a))
+    data['data']['question_tokens'] = q_tokens
+    data['data']['answer_tokens'] = a_tokens
 
-    print('Filling missing values in dialog rounds, if any...')
-    for index, dialog in enumerate(tqdm(dialogs)):
+    print("[%s] Filling missing values in dialog, if any..." % data['split'])
+    for i, dialog in enumerate(tqdm(dialogs)):
         # last round of dialog will not have answer for test split
         if 'answer' not in dialog['dialog'][-1]:
             dialog['dialog'][-1]['answer'] = -1
         # right-pad dialog with empty question-answer pairs at the end
         while len(dialog['dialog']) < 10:
             dialog['dialog'].append({'question': -1, 'answer': -1})
-        dialogs[index] = dialog
+        dialogs[i] = dialog
 
     if word_count:
-        print('Building word counts from tokens...\n')
-        for index, dialog in enumerate(tqdm(dialogs)):
-            caption = dialogs[index]['caption_tokens']
+        print("[%s] Building word counts from tokens..." % data['split'])
+        for i, dialog in enumerate(tqdm(dialogs)):
+            caption = dialogs[i]['caption_tokens']
             all_qa = []
             for j in range(10):
-                all_qa += question_tokens[dialog['dialog'][j]['question']]
-                all_qa += answer_tokens[dialog['dialog'][j]['answer']]
+                all_qa += q_tokens[dialog['dialog'][j]['question']]
+                all_qa += a_tokens[dialog['dialog'][j]['answer']]
             for word in caption + all_qa:
                 word_counts[word] = word_counts.get(word, 0) + 1
-
+    print('\n')
     return data, word_counts
 
-def encode_vocab(data_toks, ques_toks, ans_toks, word2ind):
-    '''
-    Converts string tokens to indices based on given dictionary
-    '''
-    max_ques_len, max_ans_len, max_cap_len = 0, 0, 0
-    for k, v in data_toks.items():
-        image_id = k
-        caption = [word2ind.get(word, word2ind['UNK']) \
-                for word in v['caption']]
-        if max_cap_len < len(caption): max_cap_len = len(caption)
-        data_toks[k]['caption_inds'] = caption
-        data_toks[k]['caption_len'] = len(caption)
 
-    ques_inds, ans_inds = [], []
-    for i in ques_toks:
-        question = [word2ind.get(word, word2ind['UNK']) \
-                for word in i]
-        ques_inds.append(question)
+def encode_vocab(data, word2ind):
+    """Converts string tokens to indices based on given dictionary."""
+    dialogs = data['data']['dialogs']
+    print("[%s] Encoding caption tokens..." % data['split'])
+    for i, dialog in enumerate(tqdm(dialogs)):
+        dialogs[i]['caption_tokens'] = [word2ind.get(word, word2ind['UNK']) \
+                                        for word in dialog['caption_tokens']]
 
-    for i in ans_toks:
-        answer = [word2ind.get(word, word2ind['UNK']) \
-                for word in i]
-        ans_inds.append(answer)
+    print("[%s] Encoding question and answer tokens..." % data['split'])
+    q_tokens = data['data']['question_tokens']
+    a_tokens = data['data']['answer_tokens']
 
-    return data_toks, ques_inds, ans_inds
+    for i, q in enumerate(tqdm(q_tokens)):
+        q_tokens[i] = [word2ind.get(word, word2ind['UNK']) for word in q]
+
+    for i, a in enumerate(tqdm(a_tokens)):
+        a_tokens[i] = [word2ind.get(word, word2ind['UNK']) for word in a]
+
+    data['data']['question_tokens'] = q_tokens
+    data['data']['answer_tokens'] = a_tokens
+    return data
+
 
 def create_data_mats(data_toks, ques_inds, ans_inds, params, dtype):
     num_threads = len(data_toks.keys())
@@ -197,17 +192,16 @@ if __name__ == "__main__":
         data_test = json.load(open(args.input_json_test, 'r'))
 
     # Tokenizing
-    data_train_toks, ques_train_toks, ans_train_toks, word_counts_train = tokenize_data(data_train, True)
+    data_train, word_counts_train = tokenize_data(data_train, True)
     if args.train_split == 'train':
-        data_val_toks, ques_val_toks, ans_val_toks, _ = tokenize_data(data_val)
+        data_val, _ = tokenize_data(data_val)
     elif args.train_split == 'trainval':
-        data_val_toks, ques_val_toks, ans_val_toks, word_counts_val = tokenize_data(data_val, True)
-        data_test_toks, ques_test_toks, ans_test_toks, _ = tokenize_data(data_test)
+        data_val, word_counts_val = tokenize_data(data_val, True)
+        data_test, _ = tokenize_data(data_test)
 
     word_counts_all = dict(word_counts_train)
-
+    # combining the word counts of train and val splits
     if args.train_split == 'trainval':
-        # combining the word counts of train and val splits
         for word, count in word_counts_val.items():
             word_counts_all[word] = word_counts_all.get(word, 0) + count
 
@@ -216,14 +210,14 @@ if __name__ == "__main__":
     vocab = [word for word in word_counts_all \
             if word_counts_all[word] >= args.word_count_threshold]
     print('Words: %d' % len(vocab))
-    word2ind = {word:word_ind+1 for word_ind, word in enumerate(vocab)}
-    ind2word = {word_ind:word for word, word_ind in word2ind.items()}
+    word2ind = {word: word_ind + 1 for word_ind, word in enumerate(vocab)}
+    ind2word = {word_ind: word for word, word_ind in word2ind.items()}
 
     print('Encoding based on vocabulary...')
-    data_train_toks, ques_train_inds, ans_train_inds = encode_vocab(data_train_toks, ques_train_toks, ans_train_toks, word2ind)
-    data_val_toks, ques_val_inds, ans_val_inds = encode_vocab(data_val_toks, ques_val_toks, ans_val_toks, word2ind)
+    data_train = encode_vocab(data_train, word2ind)
+    data_val = encode_vocab(data_val, word2ind)
     if args.train_split == 'trainval':
-        data_test_toks, ques_test_inds, ans_test_inds = encode_vocab(data_test_toks, ques_test_toks, ans_test_toks, word2ind)
+        data_test = encode_vocab(data_test, word2ind)
 
     print('Creating data matrices...')
     captions_train, captions_train_len, questions_train, questions_train_len, answers_train, answers_train_len, options_train, options_train_list, options_train_len, answers_train_index, images_train_index, images_train_list, _ = create_data_mats(data_train_toks, ques_train_inds, ans_train_inds, args, 'train')
