@@ -187,7 +187,7 @@ def get_image_ids(data, dtype):
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    if args.download == 1:
+    if args.download == True:
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
         os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
         # if args.train_split == 'trainval':

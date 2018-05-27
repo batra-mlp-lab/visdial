@@ -32,7 +32,7 @@ cmd:option('-batchSize', 40, 'Batch size (number of threads) (Adjust base on GPU
 cmd:option('-learningRate', 1e-3, 'Learning rate')
 cmd:option('-weightInit', 'xavier', 'Weight initialization strategy: xavier|heuristic|kaiming')
 cmd:option('-dropout', 0.5, 'Dropout')
-cmd:option('-numEpochs', 400, 'Epochs')
+cmd:option('-numEpochs', 100, 'Epochs')
 cmd:option('-LRateDecay', 10, 'After lr_decay epochs lr reduces to 0.1*lr')
 cmd:option('-lrDecayRate', 0.9997592083, 'Decay for learning rate')
 cmd:option('-minLRate', 5e-5, 'Minimum learning rate')
