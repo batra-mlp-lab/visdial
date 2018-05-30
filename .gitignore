@@ -1,5 +1,9 @@
-checkpoints
-logs
 data
-cnn
+logs
+tmp
+checkpoints
+
 vis/results
+
+*scripts*
+*internal*
