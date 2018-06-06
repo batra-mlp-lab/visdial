@@ -60,11 +60,6 @@ local savedModel = torch.load(opt.loadPath)
 -- transfer all options to model
 local modelParams = savedModel.modelParams
 
--- default values of these opts to load models saved with older version of code
-if not modelParams.weightInit then modelParams.weightInit = 'xavier'; end
-if not modelParams.saveIter then modelParams.saveIter = 2; end
-if not modelParams.imgSpatialSize then modelParams.imgSpatialSize = 14; end
-
 opt.imgNorm = modelParams.imgNorm
 opt.encoder = modelParams.encoder
 opt.decoder = modelParams.decoder
