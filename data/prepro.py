@@ -147,9 +147,8 @@ def create_data_mats(data, params, dtype):
         num_rounds_list = np.full(num_threads, 10)
         options = np.zeros([num_threads, 1, 100])
         for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
-            for j in range(num_rounds):
-                # options and answer_index are 1-indexed specifically for lua
-                num_rounds_list[i] = dialog['num_rounds']
+            # options and answer_index are 1-indexed specifically for lua
+            num_rounds_list[i] = dialog['num_rounds']
             options[i][0] = np.array(dialog['dialog'][num_rounds_list[i] - 1]['answer_options']) + 1
         data_mats['num_rounds'] = num_rounds_list
     else:
