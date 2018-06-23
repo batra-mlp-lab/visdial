@@ -414,14 +414,14 @@ function Model:retrieveBatch(batch)
             optionLhood[opId] = utils.computeLhood(curOptOut, decOut);
         end
         -- gtPosition can be nil if ground truth does not exist
-        local gtPosition = batch['answer_ind'];
+        local gtPosition = self.params.useGt and batch['answer_ind'] or nil;
 
         -- return the ranks for this batch
         return utils.computeRanks(optionLhood:t(), gtPosition);
     elseif self.params.decoder == 'disc' then
         local options = batch['options']
         local decOut = self.decoder:forward({options, encOut})
-        local gtPosition = batch['answer_ind'];
+        local gtPosition = self.params.useGt and batch['answer_ind'] or nil;
 
         -- return the ranks for this batch
         return utils.computeRanks(decOut, gtPosition)
