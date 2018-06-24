@@ -89,7 +89,7 @@ python -c "import nltk; nltk.download('all')"
 
 ```sh
 cd data
-python prepro.py -download 1
+python prepro.py -download 1 -image_root /path/to/coco/images
 cd ..
 ```
 
