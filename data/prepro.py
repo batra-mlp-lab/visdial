@@ -178,13 +178,18 @@ def create_data_mats(data, params, dtype):
 def get_image_ids(data, params, dtype):
     image_ids = [dialog['image_id'] for dialog in data['data']['dialogs']]
     print("[%s] Preparing image paths with image_ids..." % data['split'])
-    for i, image_id in enumerate(tqdm(image_ids)):
-        path = glob.glob(os.path.join(
-            params.image_root, '*', '*%s.jpg' % str(image_id)))[0]
-        path = '/'.join(path.split('/')[-2:])
-        if dtype == 'test':
+    if dtype == 'test':
+        for i, image_id in enumerate(tqdm(image_ids)):
             path = '%s2017/VisualDialog_%s2017_%012d.jpg' % (dtype, dtype, image_id)
-        image_ids[i] = path
+            image_ids[i] = path
+    else:
+        image_paths = glob.glob(os.path.join(params.image_root, '*', '*.jpg'))
+        id2path = {}
+        for image_path in image_paths:
+            id2path[int(image_path[-12:-4])] = image_path
+        for i, image_id in enumerate(tqdm(image_ids)):
+            image_ids[i] = id2path[image_id]
+
     return image_ids
 
 
