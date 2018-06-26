@@ -17,6 +17,7 @@ parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help=
 parser.add_argument('-input_json_val', default='visdial_0.9_val.json', help='Input `val` json file')
 parser.add_argument('-input_json_test', default='visdial_0.9_test.json', help='Input `test` json file')
 parser.add_argument('-image_root', default='/path/to/coco/images', help='Path to mscoco images.')
+parser.add_argument('-input_vocab', default=False, help='Optional vocab file; similar to visdial_params.json')
 
 # Output files
 parser.add_argument('-output_json', default='visdial_params.json', help='Output json file')
@@ -217,19 +218,31 @@ if __name__ == "__main__":
         data_val, word_counts_val = tokenize_data(data_val, True)
         data_test, _ = tokenize_data(data_test)
 
-    word_counts_all = dict(word_counts_train)
-    # combining the word counts of train and val splits
-    if args.train_split == 'trainval':
-        for word, count in word_counts_val.items():
-            word_counts_all[word] = word_counts_all.get(word, 0) + count
+    if args.input_vocab == False:
+        word_counts_all = dict(word_counts_train)
+        # combining the word counts of train and val splits
+        if args.train_split == 'trainval':
+            for word, count in word_counts_val.items():
+                word_counts_all[word] = word_counts_all.get(word, 0) + count
 
-    print('Building vocabulary...')
-    word_counts_all['UNK'] = args.word_count_threshold
-    vocab = [word for word in word_counts_all \
-            if word_counts_all[word] >= args.word_count_threshold]
-    print('Words: %d' % len(vocab))
-    word2ind = {word: word_ind + 1 for word_ind, word in enumerate(vocab)}
-    ind2word = {word_ind: word for word, word_ind in word2ind.items()}
+        print('Building vocabulary...')
+        word_counts_all['UNK'] = args.word_count_threshold
+        vocab = [word for word in word_counts_all \
+                if word_counts_all[word] >= args.word_count_threshold]
+        print('Words: %d' % len(vocab))
+        word2ind = {word: word_ind + 1 for word_ind, word in enumerate(vocab)}
+        ind2word = {word_ind: word for word, word_ind in word2ind.items()}
+    else:
+        print('Loading vocab from %s...' % args.input_vocab)
+        vocab_data = json.load(open(args.input_vocab, 'r'))
+
+        word2ind = vocab_data['word2ind']
+        for i in word2ind:
+            word2ind[i] = int(word2ind[i])
+
+        ind2word = {}
+        for i in vocab_data['ind2word']:
+            ind2word[int(i)] = vocab_data['ind2word'][i]
 
     print('Encoding based on vocabulary...')
     data_train = encode_vocab(data_train, word2ind)
