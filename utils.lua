@@ -113,7 +113,15 @@ function utils.computeRanks(scores, gtPos)
         ranks = ranks:sum(2) + 1;
     else
         -- sort in descending order - largest score gets highest rank
-        sorted, ranks = scores:sort(2, true)
+        sorted, ranked_idx = scores:sort(2, true)
+
+        -- convert from ranked_idx to ranks
+        ranks = ranked_idx:clone():fill(0)
+        for i = 1, ranked_idx:size(1) do
+            for j = 1, 100 do
+                ranks[{i, ranked_idx[{i, j}]}] = j
+            end
+        end
     end
 
     -- convert into double
