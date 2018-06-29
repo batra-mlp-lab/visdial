@@ -177,17 +177,10 @@ def create_data_mats(data, params, dtype):
     return data_mats
 
 
-def get_image_ids(data, params, dtype):
+def get_image_ids(data, id2path):
     image_ids = [dialog['image_id'] for dialog in data['data']['dialogs']]
-    print("[%s] Preparing image paths with image_ids..." % data['split'])
-
-    image_paths = glob.glob(os.path.join(params.image_root, '*', '*.jpg'))
-    id2path = {}
-    for image_path in image_paths:
-        id2path[int(image_path[-12:-4])] = image_path
-    for i, image_id in enumerate(tqdm(image_ids)):
+    for i, image_id in enumerate(image_ids):
         image_ids[i] = id2path[image_id]
-
     return image_ids
 
 
@@ -265,7 +258,7 @@ if __name__ == "__main__":
 
         data_mats_test = create_data_mats(data_test, args, 'test')
 
-    print('Saving hdf5...')
+    print('Saving hdf5 to %s...' % args.output_h5)
     f = h5py.File(args.output_h5, 'w')
     if args.train_split == 'train':
         for key in data_mats_train:
@@ -285,11 +278,18 @@ if __name__ == "__main__":
     out = {}
     out['ind2word'] = ind2word
     out['word2ind'] = word2ind
-    if args.train_split == 'train':
-        out['unique_img_train'] = get_image_ids(data_train, args, 'train')
-        out['unique_img_val'] = get_image_ids(data_val, args, 'val')
-    elif args.train_split == 'trainval':
-        out['unique_img_train'] = get_image_ids(data_train, args, 'train') + \
-                                  get_image_ids(data_val, args, 'val')
-        out['unique_img_test'] = get_image_ids(data_test, args, 'test')
+
+    print('Preparing image paths with image_ids...')
+    id2path = {}
+    # NOTE: based on assumption that image_id is unique across all splits
+    for image_path in tqdm(glob.iglob(os.path.join(args.image_root, '*', '*.jpg'))):
+        id2path[int(image_path[-12:-4])] = '/'.join(image_path.split('/')[1:])
+
+    out['unique_img_train'] = get_image_ids(data_train, id2path)
+    out['unique_img_val'] = get_image_ids(data_val, id2path)
+    out['unique_img_test'] = get_image_ids(data_test, id2path)
+    if args.train_split == 'trainval':
+        out['unique_img_train'] += out['unique_img_val']
+        out.pop('unique_img_val')
+    print('Saving json to %s...' % args.output_json)
     json.dump(out, open(args.output_json, 'w'))
