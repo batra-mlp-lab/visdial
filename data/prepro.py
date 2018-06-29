@@ -189,20 +189,20 @@ if __name__ == "__main__":
 
     if args.download:
         if args.version == '1.0':
-            os.system('wget https://www.dropbox.com/s/ix8keeudqrd8hn8/visdial_1.0_train.zip?dl=0')
-            os.system('wget https://www.dropbox.com/s/ibs3a0zhw74zisc/visdial_1.0_val.zip?dl=0')
+            os.system('wget -O visdial_1.0_train.zip https://www.dropbox.com/s/ix8keeudqrd8hn8/visdial_1.0_train.zip?dl=0')
+            os.system('wget -O visdial_1.0_val.zip https://www.dropbox.com/s/ibs3a0zhw74zisc/visdial_1.0_val.zip?dl=0')
         elif args.version == '0.9':
             os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
             os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
-        os.system('wget https://www.dropbox.com/s/o7mucbre2zm7i5n/visdial_1.0_test.zip?dl=0')
+        os.system('wget -O visdial_1.0_test.zip https://www.dropbox.com/s/o7mucbre2zm7i5n/visdial_1.0_test.zip?dl=0')
 
         os.system('unzip visdial_%s_train.zip' % args.version)
         os.system('unzip visdial_%s_val.zip' % args.version)
         os.system('unzip visdial_1.0_test.zip')
 
-        args.input_json_train = 'visdial_%s_train.zip' % args.version
-        args.input_json_val = 'visdial_%s_val.zip' % args.version
-        args.input_json_test = 'visdial_1.0_test.zip'
+        args.input_json_train = 'visdial_%s_train.json' % args.version
+        args.input_json_val = 'visdial_%s_val.json' % args.version
+        args.input_json_test = 'visdial_1.0_test.json'
 
     print('Reading json...')
     data_train = json.load(open(args.input_json_train, 'r'))
