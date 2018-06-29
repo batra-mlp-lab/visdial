@@ -9,14 +9,15 @@ from tqdm import tqdm
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-download', action='store_true', help='Whether to download VisDial v0.9 data')
+parser.add_argument('-download', action='store_true', help='Whether to download VisDial data')
+parser.add_argument('-version', default='1.0', choices=['0.9', '1.0'], help='Version of VisDial to be downloaded')
 parser.add_argument('-train_split', default='train', help='Choose the data split: train | trainval', choices=['train', 'trainval'])
 
 # Input files
-parser.add_argument('-input_json_train', default='visdial_0.9_train.json', help='Input `train` json file')
-parser.add_argument('-input_json_val', default='visdial_0.9_val.json', help='Input `val` json file')
-parser.add_argument('-input_json_test', default='visdial_0.9_test.json', help='Input `test` json file')
-parser.add_argument('-image_root', default='/path/to/coco/images', help='Path to mscoco images.')
+parser.add_argument('-input_json_train', default='visdial_1.0_train.json', help='Input `train` json file')
+parser.add_argument('-input_json_val', default='visdial_1.0_val.json', help='Input `val` json file')
+parser.add_argument('-input_json_test', default='visdial_1.0_test.json', help='Input `test` json file')
+parser.add_argument('-image_root', default='/path/to/images', help='Path to mscoco and VisDial val/test images')
 parser.add_argument('-input_vocab', default=False, help='Optional vocab file; similar to visdial_params.json')
 
 # Output files
@@ -193,30 +194,32 @@ def get_image_ids(data, params, dtype):
 if __name__ == "__main__":
     args = parser.parse_args()
 
-    if args.download == True:
-        os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
-        os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
-        # if args.train_split == 'trainval':
-            #TODO Add download path to visdial_0.9_test.zip
+    if args.download:
+        if args.version == '1.0':
+            os.system('wget https://www.dropbox.com/s/ix8keeudqrd8hn8/visdial_1.0_train.zip?dl=0')
+            os.system('wget https://www.dropbox.com/s/ibs3a0zhw74zisc/visdial_1.0_val.zip?dl=0')
+        elif args.version == '0.9':
+            os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
+            os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
+        os.system('wget https://www.dropbox.com/s/o7mucbre2zm7i5n/visdial_1.0_test.zip?dl=0')
 
-        os.system('unzip visdial_0.9_train.zip')
-        os.system('unzip visdial_0.9_val.zip')
-        if args.train_split == 'trainval':
-            os.system('unzip visdial_0.9_test.zip')
+        os.system('unzip visdial_%s_train.zip' % args.version)
+        os.system('unzip visdial_%s_val.zip' % args.version)
+        os.system('unzip visdial_1.0_test.zip')
+
+        args.input_json_train = 'visdial_%s_train.zip' % args.version
+        args.input_json_val = 'visdial_%s_val.zip' % args.version
+        args.input_json_test = 'visdial_1.0_test.zip' % args.version
 
     print('Reading json...')
     data_train = json.load(open(args.input_json_train, 'r'))
     data_val = json.load(open(args.input_json_val, 'r'))
-    if args.train_split == 'trainval':
-        data_test = json.load(open(args.input_json_test, 'r'))
+    data_test = json.load(open(args.input_json_test, 'r'))
 
     # Tokenizing
     data_train, word_counts_train = tokenize_data(data_train, True)
-    if args.train_split == 'train':
-        data_val, _ = tokenize_data(data_val)
-    elif args.train_split == 'trainval':
-        data_val, word_counts_val = tokenize_data(data_val, True)
-        data_test, _ = tokenize_data(data_test)
+    data_val, word_counts_val = tokenize_data(data_val, True)
+    data_test, _ = tokenize_data(data_test)
 
     if args.input_vocab == False:
         word_counts_all = dict(word_counts_train)
