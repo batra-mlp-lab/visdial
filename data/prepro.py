@@ -202,7 +202,7 @@ if __name__ == "__main__":
 
         args.input_json_train = 'visdial_%s_train.zip' % args.version
         args.input_json_val = 'visdial_%s_val.zip' % args.version
-        args.input_json_test = 'visdial_1.0_test.zip' % args.version
+        args.input_json_test = 'visdial_1.0_test.zip'
 
     print('Reading json...')
     data_train = json.load(open(args.input_json_train, 'r'))
@@ -243,20 +243,18 @@ if __name__ == "__main__":
     print('Encoding based on vocabulary...')
     data_train = encode_vocab(data_train, word2ind)
     data_val = encode_vocab(data_val, word2ind)
-    if args.train_split == 'trainval':
-        data_test = encode_vocab(data_test, word2ind)
+    data_test = encode_vocab(data_test, word2ind)
 
     print('Creating data matrices...')
     data_mats_train = create_data_mats(data_train, args, 'train')
     data_mats_val = create_data_mats(data_val, args, 'val')
+    data_mats_test = create_data_mats(data_test, args, 'test')
 
     if args.train_split == 'trainval':
         data_mats_trainval = {}
         for key in data_mats_train:
             data_mats_trainval[key] = np.concatenate((data_mats_train[key],
                                                       data_mats_val[key]), axis = 0)
-
-        data_mats_test = create_data_mats(data_test, args, 'test')
 
     print('Saving hdf5 to %s...' % args.output_h5)
     f = h5py.File(args.output_h5, 'w')
@@ -271,8 +269,8 @@ if __name__ == "__main__":
         for key in data_mats_trainval:
             f.create_dataset(key + '_train', dtype='uint32', data=data_mats_trainval[key])
 
-        for key in data_mats_test:
-            f.create_dataset(key + '_test', dtype='uint32', data=data_mats_test[key])
+    for key in data_mats_test:
+        f.create_dataset(key + '_test', dtype='uint32', data=data_mats_test[key])
     f.close()
 
     out = {}
