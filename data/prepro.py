@@ -17,7 +17,7 @@ parser.add_argument('-train_split', default='train', help='Choose the data split
 parser.add_argument('-input_json_train', default='visdial_1.0_train.json', help='Input `train` json file')
 parser.add_argument('-input_json_val', default='visdial_1.0_val.json', help='Input `val` json file')
 parser.add_argument('-input_json_test', default='visdial_1.0_test.json', help='Input `test` json file')
-parser.add_argument('-image_root', default='/path/to/images', help='Path to mscoco and VisDial val/test images')
+parser.add_argument('-image_root', default='/path/to/images', help='Path to coco and VisDial val/test images')
 parser.add_argument('-input_vocab', default=False, help='Optional vocab file; similar to visdial_params.json')
 
 # Output files
@@ -189,12 +189,12 @@ if __name__ == "__main__":
 
     if args.download:
         if args.version == '1.0':
-            os.system('wget -O visdial_1.0_train.zip https://www.dropbox.com/s/ix8keeudqrd8hn8/visdial_1.0_train.zip?dl=0')
-            os.system('wget -O visdial_1.0_val.zip https://www.dropbox.com/s/ibs3a0zhw74zisc/visdial_1.0_val.zip?dl=0')
+            os.system('wget https://www.dropbox.com/s/ix8keeudqrd8hn8/visdial_1.0_train.zip')
+            os.system('wget https://www.dropbox.com/s/ibs3a0zhw74zisc/visdial_1.0_val.zip')
         elif args.version == '0.9':
             os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_train.zip')
             os.system('wget https://computing.ece.vt.edu/~abhshkdz/data/visdial/visdial_0.9_val.zip')
-        os.system('wget -O visdial_1.0_test.zip https://www.dropbox.com/s/o7mucbre2zm7i5n/visdial_1.0_test.zip?dl=0')
+        os.system('wget https://www.dropbox.com/s/o7mucbre2zm7i5n/visdial_1.0_test.zip')
 
         os.system('unzip visdial_%s_train.zip' % args.version)
         os.system('unzip visdial_%s_val.zip' % args.version)
