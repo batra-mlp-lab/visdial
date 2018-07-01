@@ -85,11 +85,11 @@ pip install h5py
 python -c "import nltk; nltk.download('all')"
 ```
 
-[VisDial v1.0][27] dataset can be downloaded and preprocessed as specified below. The path provided as `-image_root` must have four subdirectories - `train2014` and `val2014` as per COCO dataset, `VisualDialog_val2018` and `VisualDialog_test2018` which can be downloaded from [here][27].
+[VisDial v1.0][27] dataset can be downloaded and preprocessed as specified below. The path provided as `-image_root` must have four subdirectories - [`train2014`][34] and [`val2014`][35] as per COCO dataset, `VisualDialog_val2018` and `VisualDialog_test2018` which can be downloaded from [here][27].
 
 ```sh
 cd data
-python prepro.py -download -image_root /path/to/coco/images
+python prepro.py -download -image_root /path/to/images
 cd ..
 ```
 
@@ -106,9 +106,9 @@ Since we don't finetune the CNN, training is significantly faster if image featu
 sh scripts/download_model.sh vgg 16  # works for 19 as well
 cd data
 # For all models except mn-att-ques-im-hist
-th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -gpuid 0
+th prepro_img_vgg16.lua -imageRoot /path/to/images -gpuid 0
 # For mn-att-ques-im-hist
-th prepro_img_vgg16.lua -imageRoot /path/to/coco/images -imgSize 448 -layerName pool5 -gpuid 0
+th prepro_img_vgg16.lua -imageRoot /path/to/images -imgSize 448 -layerName pool5 -gpuid 0
 ```
 
 Similarly, [ResNet models][32] released by Facebook can be used for feature extraction. Feature extraction can be carried out in a similar manner as VGG-16:
@@ -116,7 +116,7 @@ Similarly, [ResNet models][32] released by Facebook can be used for feature extr
 ```sh
 sh scripts/download_model.sh resnet 200  # works for 18, 34, 50, 101, 152 as well
 cd data
-th prepro_img_resnet.lua -imageRoot /path/to/coco/images -cnnModel /path/to/t7/model -gpuid 0
+th prepro_img_resnet.lua -imageRoot /path/to/images -cnnModel /path/to/t7/model -gpuid 0
 ```
 
 Running either of these should generate `data/data_img.h5` containing features for `train`, `val` and `test` splits corresponding to VisDial v1.0.
@@ -188,8 +188,8 @@ All files available for download [here][29].
 
 * `visdial_data.h5`: Tokenized captions, questions, answers, image indices
 * `visdial_params.json`: Vocabulary mappings and COCO image ids
-* `data_img_vgg16_relu7.h5`: VGG16 `relu7` image features for VisDial v1.0 `train`, `val` and `test`
-* `data_img_vgg16_pool5.h5`: VGG16 `pool5` image features for VisDial v1.0 `train`, `val` and `test`
+* `data_img_vgg16_relu7.h5`: VGG16 `relu7` image features
+* `data_img_vgg16_pool5.h5`: VGG16 `pool5` image features
 
 ### Pretrained models
 
@@ -310,8 +310,10 @@ BSD
 [26]: https://github.com/deepmind/torch-hdf5/blob/master/doc/usage.md
 [27]: https://visualdialog.org/data
 [28]: http://www.robots.ox.ac.uk/~vgg/research/very_deep/
-[29]: https://computing.ece.vt.edu/~abhshkdz/visdial/
+[29]: https://computing.ece.vt.edu/~abhshkdz/visdial/data/
 [30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
 [31]: https://www.github.com/soumith/cudnn.torch
 [32]: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained
 [33]: https://github.com/torch/rnn
+[34]: http://images.cocodataset.org/zips/train2014.zip
+[35]: http://images.cocodataset.org/zips/val2014.zip
