@@ -85,15 +85,18 @@ pip install h5py
 python -c "import nltk; nltk.download('all')"
 ```
 
-[VisDial v0.9][27] dataset can be downloaded and preprocessed as follows:
+[VisDial v1.0][27] dataset can be downloaded and preprocessed as specified below. The path provided as `-image_root` must have four subdirectories - `train2014` and `val2014` as per COCO dataset, `VisualDialog_val2018` and `VisualDialog_test2018` which can be downloaded from [here][27].
 
 ```sh
 cd data
-python prepro.py -download 1 -image_root /path/to/coco/images
+python prepro.py -download -image_root /path/to/coco/images
 cd ..
 ```
 
-This will generate the files `data/visdial_data.h5` (contains tokenized captions, questions, answers, image indices) and `data/visdial_params.json` (contains vocabulary mappings and COCO image ids).
+To download and preprocess [Visdial v0.9][27] dataset, provide an extra `-version 0.9` argument while execution.
+
+This script will generate the files `data/visdial_data.h5` (contains tokenized captions, questions, answers, image indices) and `data/visdial_params.json` (contains vocabulary mappings and COCO image ids).
+
 
 ### Extracting image features
 
@@ -116,7 +119,8 @@ cd data
 th prepro_img_resnet.lua -imageRoot /path/to/coco/images -cnnModel /path/to/t7/model -gpuid 0
 ```
 
-Running either of these should generate `data/data_img.h5` containing features for COCO `train` and `val` splits corresponding to VisDial v0.9.
+Running either of these should generate `data/data_img.h5` containing features for `train`, `val` and `test` splits corresponding to VisDial v1.0.
+
 
 ### Training
 
@@ -184,8 +188,8 @@ All files available for download [here][29].
 
 * `visdial_data.h5`: Tokenized captions, questions, answers, image indices
 * `visdial_params.json`: Vocabulary mappings and COCO image ids
-* `data_img_vgg16_relu7.h5`: VGG16 `relu7` image features for COCO `train` and `val`
-* `data_img_vgg16_pool5.h5`: VGG16 `pool5` image features for COCO `train` and `val`
+* `data_img_vgg16_relu7.h5`: VGG16 `relu7` image features for VisDial v1.0 `train`, `val` and `test`
+* `data_img_vgg16_pool5.h5`: VGG16 `pool5` image features for VisDial v1.0 `train`, `val` and `test`
 
 ### Pretrained models
 
