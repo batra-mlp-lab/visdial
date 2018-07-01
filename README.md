@@ -184,14 +184,16 @@ Sample results from HRE-QIH-G available [here](https://computing.ece.vt.edu/~abh
 
 ## Download Extracted Features & Pretrained Models
 
-All files available for download [here][29].
+### v0.9
+
+Extracted features for v0.9 train and val are available for download [here][29].
 
 * `visdial_data.h5`: Tokenized captions, questions, answers, image indices
 * `visdial_params.json`: Vocabulary mappings and COCO image ids
 * `data_img_vgg16_relu7.h5`: VGG16 `relu7` image features
 * `data_img_vgg16_pool5.h5`: VGG16 `pool5` image features
 
-### Pretrained models
+#### Pretrained models
 
 NOTE: Results on v0.9 `val`
 
@@ -271,6 +273,23 @@ NOTE: Results on v0.9 `val`
     </tbody>
 </table>
 
+### v1.0
+
+Extracted features for v1.0 train, val and test are available for download [here][36].
+
+* `visdial_data_train.h5`: Tokenized captions, questions, answers, image indices, for training on `train`
+* `visdial_params_train.json`: Vocabulary mappings and COCO image ids for training on `train`
+* `data_img_vgg16_relu7_train.h5`: VGG16 `relu7` image features for training on `train`
+* `data_img_vgg16_pool5_train.h5`: VGG16 `pool5` image features for training on `train`
+* `visdial_data_trainval.h5`: Tokenized captions, questions, answers, image indices, for training on `train`+`val`
+* `visdial_params_trainval.json`: Vocabulary mappings and COCO image ids for training on `train`+`val`
+* `data_img_vgg16_relu7_trainval.h5`: VGG16 `relu7` image features for training on `train`+`val`
+* `data_img_vgg16_pool5_trainval.h5`: VGG16 `pool5` image features for training on `train`+`val`
+
+#### Pretrained models
+
+Coming soon.
+
 ## Contributors
 
 * [Abhishek Das][2] (abhshkdz@gatech.edu)
@@ -310,10 +329,11 @@ BSD
 [26]: https://github.com/deepmind/torch-hdf5/blob/master/doc/usage.md
 [27]: https://visualdialog.org/data
 [28]: http://www.robots.ox.ac.uk/~vgg/research/very_deep/
-[29]: https://computing.ece.vt.edu/~abhshkdz/visdial/data/
+[29]: https://computing.ece.vt.edu/~abhshkdz/visdial/data/v0.9/
 [30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
 [31]: https://www.github.com/soumith/cudnn.torch
 [32]: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained
 [33]: https://github.com/torch/rnn
 [34]: http://images.cocodataset.org/zips/train2014.zip
 [35]: http://images.cocodataset.org/zips/val2014.zip
+[36]: https://computing.ece.vt.edu/~abhshkdz/visdial/data/v1.0/
