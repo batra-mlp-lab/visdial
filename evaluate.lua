@@ -65,6 +65,7 @@ opt.encoder = modelParams.encoder
 opt.decoder = modelParams.decoder
 modelParams.gpuid = opt.gpuid
 modelParams.batchSize = opt.batchSize
+modelParams.useGt = opt.useGt
 
 -- add flags for various configurations
 -- additionally check if its imitation of discriminative model
