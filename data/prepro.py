@@ -147,16 +147,16 @@ def create_data_mats(data, params, dtype):
     data_mats['ans_length'] = ans_length
 
     print("[%s] Creating options data matrices..." % data['split'])
-    options = np.zeros([num_threads, num_rounds, 100])
+    # options and answer_index are 1-indexed specifically for lua
+    options = np.ones([num_threads, num_rounds, 100])
     num_rounds_list = np.full(num_threads, 10)
 
     for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
         for j in range(num_rounds):
-            # options and answer_index are 1-indexed specifically for lua
             num_rounds_list[i] = dialog['num_rounds']
             # v1.0 test does not have options for all dialog rounds
             if 'answer_options' in dialog['dialog'][j]:
-                options[i][j] = np.array(dialog['dialog'][j]['answer_options']) + 1
+                options[i][j] += np.array(dialog['dialog'][j]['answer_options'])
 
     data_mats['num_rounds'] = num_rounds_list
     data_mats['opt'] = options
@@ -285,7 +285,7 @@ if __name__ == "__main__":
     id2path = {}
     # NOTE: based on assumption that image_id is unique across all splits
     for image_path in tqdm(glob.iglob(os.path.join(args.image_root, '*', '*.jpg'))):
-        id2path[int(image_path[-12:-4])] = '/'.join(image_path.split('/')[1:])
+        id2path[int(image_path[-12:-4])] = '/'.join(image_path.split('/')[-2:])
 
     out['unique_img_train'] = get_image_ids(data_train, id2path)
     out['unique_img_val'] = get_image_ids(data_val, id2path)

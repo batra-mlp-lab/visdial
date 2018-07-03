@@ -464,7 +464,7 @@ function dataloader.getIndexOption(self, inds, params, dtype)
     elseif params.decoder == 'disc' then
         local optInds = self[dtype .. '_opt']:index(1, inds)
         local indVector = optInds:view(-1)
-    
+
         local optionIn = self[dtype .. '_opt_list']:index(1, indVector)
 
         optionIn = optionIn:view(optInds:size(1), optInds:size(2), optInds:size(3), -1)

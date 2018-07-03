@@ -174,7 +174,7 @@ function Model:retrieve(dataloader, dtype)
     local retrieval = {};
     local ranks = torch.totable(ranks:double());
     for i = 1, #dataloader['unique_img_'..dtype] do
-        for j = 1, 10 do
+        for j = 1, dataloader[dtype..'_num_rounds'][i] do
             table.insert(retrieval, {
                 image_id = dataloader['unique_img_'..dtype][i];
                 round_id = j;
@@ -230,7 +230,7 @@ function Model:predict(dataloader, dtype)
                 ranks = ranks[i][dataloader[dtype..'_num_rounds'][i]]
             })
         else
-            for j = 1, 10 do
+            for j = 1, dataloader[dtype..'_num_rounds'][i] do
                 table.insert(prediction, {
                     image_id = dataloader['unique_img_'..dtype][i];
                     round_id = j;
