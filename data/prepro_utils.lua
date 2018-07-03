@@ -70,6 +70,8 @@ function extractFeatures(model, opt, ndims, preprocessFn)
     if opt.trainSplit == 'train' then
         imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'val')
         h5File:write('/images_val', imFeats)
+        imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'test')
+        h5File:write('/images_test', imFeats)
     elseif opt.trainSplit == 'trainval' then
         imFeats = extractFeaturesSplit(model, opt, ndims, preprocessFn, 'test')
         h5File:write('/images_test', imFeats)
