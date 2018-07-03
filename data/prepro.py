@@ -147,23 +147,27 @@ def create_data_mats(data, params, dtype):
     data_mats['ans_length'] = ans_length
 
     print("[%s] Creating options data matrices..." % data['split'])
-    if dtype == 'test':
-        num_rounds_list = np.full(num_threads, 10)
-        options = np.zeros([num_threads, 1, 100])
-        for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
+    options = np.zeros([num_threads, num_rounds, 100])
+    num_rounds_list = np.full(num_threads, 10)
+
+    for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
+        for j in range(num_rounds):
             # options and answer_index are 1-indexed specifically for lua
             num_rounds_list[i] = dialog['num_rounds']
-            options[i][0] = np.array(dialog['dialog'][num_rounds_list[i] - 1]['answer_options']) + 1
-        data_mats['num_rounds'] = num_rounds_list
-    else:
+            # v1.0 test does not have options for all dialog rounds
+            if 'answer_options' in dialog['dialog'][j]:
+                options[i][j] = np.array(dialog['dialog'][j]['answer_options']) + 1
+
+    data_mats['num_rounds'] = num_rounds_list
+    data_mats['opt'] = options
+
+    if dtype != 'test':
+        print("[%s] Creating ground truth answer data matrices..." % data['split'])
         answer_index = np.zeros([num_threads, num_rounds])
-        options = np.zeros([num_threads, num_rounds, 100])
         for i, dialog in enumerate(tqdm(data['data']['dialogs'])):
             for j in range(num_rounds):
                 answer_index[i][j] = dialog['dialog'][j]['gt_index'] + 1
-                options[i][j] = np.array(dialog['dialog'][j]['answer_options']) + 1
         data_mats['ans_index'] = answer_index
-    data_mats['opt'] = options
 
     options_len = np.zeros(len(data['data']['answer_tokens']), dtype=np.int)
     options_list = np.zeros([len(data['data']['answer_tokens']), max_ans_len])
