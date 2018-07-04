@@ -51,7 +51,7 @@ function dataloader:initialize(opt, subsets)
         -- read answer related information
         self[dtype..'_ans'] = quesFile:read('ans_'..dtype):all();
         self[dtype..'_ans_len'] = quesFile:read('ans_length_'..dtype):all();
-        if opt.useGt then
+        if dtype ~= 'test' then
             self[dtype..'_ans_ind'] = quesFile:read('ans_index_'..dtype):all():long();
         end
 
@@ -132,7 +132,6 @@ function dataloader:initialize(opt, subsets)
     self.concatHistory = opt.concatHistory;
     self.useIm = opt.useIm;
     self.maxHistoryLen = opt.maxHistoryLen or 60;
-    self.useGt = opt.useGt;
 
     -- prepareDataset for training
     for _, dtype in pairs(subsets) do self:prepareDataset(dtype); end
@@ -362,7 +361,7 @@ function dataloader.getTestBatch(self, startId, params, dtype)
     if params.decoder == 'disc' then
         batchOutput['options'] = optionOutput:view(optionOutput:size(1)
                                     * optionOutput:size(2), optionOutput:size(3), -1)
-        if self.useGt then 
+        if dtype ~= 'test' then 
             batchOutput['answer_ind'] = batchOutput['answer_ind']:view(batchOutput['answer_ind']
                                             :size(1) * batchOutput['answer_ind']:size(2))
         end
@@ -424,7 +423,7 @@ function dataloader.getIndexData(self, inds, params, dtype)
         if imgFeats then output['img_feat'] = imgFeats:contiguous(); end
     end
 
-    if self.useGt then
+    if dtype ~= 'test' then
         local answerInd = self[dtype..'_ans_ind']:index(1, inds);
         output['answer_ind'] = params.gpuid >= 0 and answerInd:cuda() or answerInd:contiguous();
     end
