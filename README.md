@@ -184,7 +184,7 @@ Sample results from HRE-QIH-G available [here](https://computing.ece.vt.edu/~abh
 
 ## Download Extracted Features & Pretrained Models
 
-### v0.9
+### <a href="#v0.9">v0.9</a>
 
 Extracted features for v0.9 train and val are available for download [here][29].
 
@@ -273,9 +273,7 @@ NOTE: Trained on v0.9 `train`, results on v0.9 `val`
     </tbody>
 </table>
 
-<a href="#v1.0"></a>
-
-### v1.0
+### <a href="#v1.0">v1.0</a>
 
 Extracted features for v1.0 train, val and test are available for download [here][36].
 
