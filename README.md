@@ -195,7 +195,7 @@ Extracted features for v0.9 train and val are available for download [here][29].
 
 #### Pretrained models
 
-NOTE: Results on v0.9 `val`
+NOTE: Trained on v0.9 `train`, results on v0.9 `val`
 
 <table>
     <thead>
@@ -288,7 +288,7 @@ Extracted features for v1.0 train, val and test are available for download [here
 
 #### Pretrained models
 
-NOTE: Results on v1.0 `test-std`
+NOTE: Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`
 
 <table>
     <thead>
