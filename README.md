@@ -273,6 +273,8 @@ NOTE: Trained on v0.9 `train`, results on v0.9 `val`
     </tbody>
 </table>
 
+<a href="#v1.0"></a>
+
 ### v1.0
 
 Extracted features for v1.0 train, val and test are available for download [here][36].
