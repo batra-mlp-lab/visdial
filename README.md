@@ -306,6 +306,12 @@ NOTE: Results on v1.0 `test-std`
         <tr>
             <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
         </tr>
+        <tr>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+        </tr>
+        <tr>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+        </tr>
     </tbody>
 </table>
 
