@@ -37,7 +37,7 @@ if opt.loadPath ~= '' then
     opt.imgNorm = modelParams.imgNorm;
     opt.encoder = modelParams.encoder;
     opt.decoder = modelParams.decoder;
-    modelParams.gpudid = opt.gpuid;
+    modelParams.gpuid = opt.gpuid;
     modelParams.batchSize = opt.batchSize;
 end
 
