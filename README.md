@@ -186,12 +186,12 @@ Sample results from HRE-QIH-G available [here](https://computing.ece.vt.edu/~abh
 
 ### v0.9
 
-Extracted features for v0.9 train and val are available for download [here][29].
+Extracted features for v0.9 train and val are available for download.
 
-* `visdial_data.h5`: Tokenized captions, questions, answers, image indices
-* `visdial_params.json`: Vocabulary mappings and COCO image ids
-* `data_img_vgg16_relu7.h5`: VGG16 `relu7` image features
-* `data_img_vgg16_pool5.h5`: VGG16 `pool5` image features
+* [`visdial_data.h5`](https://s3.amazonaws.com/visual-dialog/data/v0.9/visdial_data.h5): Tokenized captions, questions, answers, image indices
+* [`visdial_params.json`](https://s3.amazonaws.com/visual-dialog/data/v0.9/visdial_params.json): Vocabulary mappings and COCO image ids
+* [`data_img_vgg16_relu7.h5`](https://s3.amazonaws.com/visual-dialog/data/v0.9/data_img_vgg16_relu7.h5): VGG16 `relu7` image features
+* [`data_img_vgg16_pool5.h5`](https://s3.amazonaws.com/visual-dialog/data/v0.9/data_img_vgg16_pool5.h5): VGG16 `pool5` image features
 
 #### Pretrained models
 
@@ -205,86 +205,86 @@ NOTE: Trained on v0.9 `train`, results on v0.9 `val`
     </thead>
     <tbody>
         <tr>
-            <td><sup><sub>lf-ques</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5048</sub></sup></td><td><sup><sub>0.3974</sub></sup></td><td><sup><sub>0.6067</sub></sup></td><td><sup><sub>0.6649</sub></sup></td><td><sup><sub>17.8003</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-gen-vgg16-18.t7"><sup><sub>lf-ques-gen-vgg16-18</sub></sup></a></td>
+            <td><sup><sub>lf-ques</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5048</sub></sup></td><td><sup><sub>0.3974</sub></sup></td><td><sup><sub>0.6067</sub></sup></td><td><sup><sub>0.6649</sub></sup></td><td><sup><sub>17.8003</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-gen-vgg16-18.t7"><sup><sub>lf-ques-gen-vgg16-18</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5099</sub></sup></td><td><sup><sub>0.4012</sub></sup></td><td><sup><sub>0.6155</sub></sup></td><td><sup><sub>0.6740</sub></sup></td><td><sup><sub>17.3974</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-hist-gen-vgg16-18.t7"><sup><sub>lf-ques-hist-gen-vgg16-18</sub></sup></a></td>
+            <td><sup><sub>lf-ques-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5099</sub></sup></td><td><sup><sub>0.4012</sub></sup></td><td><sup><sub>0.6155</sub></sup></td><td><sup><sub>0.6740</sub></sup></td><td><sup><sub>17.3974</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-hist-gen-vgg16-18.t7"><sup><sub>lf-ques-hist-gen-vgg16-18</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques-im</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5206</sub></sup></td><td><sup><sub>0.4206</sub></sup></td><td><sup><sub>0.6165</sub></sup></td><td><sup><sub>0.6760</sub></sup></td><td><sup><sub>17.0578</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-im-gen-vgg16-22.t7"><sup><sub>lf-ques-im-gen-vgg16-22</sub></sup></a></td>
+            <td><sup><sub>lf-ques-im</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5206</sub></sup></td><td><sup><sub>0.4206</sub></sup></td><td><sup><sub>0.6165</sub></sup></td><td><sup><sub>0.6760</sub></sup></td><td><sup><sub>17.0578</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-im-gen-vgg16-22.t7"><sup><sub>lf-ques-im-gen-vgg16-22</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5146</sub></sup></td><td><sup><sub>0.4086</sub></sup></td><td><sup><sub>0.6205</sub></sup></td><td><sup><sub>0.6828</sub></sup></td><td><sup><sub>16.7553</sub></sup></td><td><sup><sub><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-im-hist-gen-vgg16-26.t7">lf-ques-im-hist-gen-vgg16-26</a></sub></sup></td>
+            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5146</sub></sup></td><td><sup><sub>0.4086</sub></sup></td><td><sup><sub>0.6205</sub></sup></td><td><sup><sub>0.6828</sub></sup></td><td><sup><sub>16.7553</sub></sup></td><td><sup><sub><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-im-hist-gen-vgg16-26.t7">lf-ques-im-hist-gen-vgg16-26</a></sub></sup></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5354</sub></sup></td><td><sup><sub>0.4354</sub></sup></td><td><sup><sub>0.6355</sub></sup></td><td><sup><sub>0.6941</sub></sup></td><td><sup><sub>16.7663</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-att-ques-im-hist-gen-vgg16-80.t7"><sup><sub>lf-att-ques-im-hist-gen-vgg16-80</sub></sup></a></td>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5354</sub></sup></td><td><sup><sub>0.4354</sub></sup></td><td><sup><sub>0.6355</sub></sup></td><td><sup><sub>0.6941</sub></sup></td><td><sup><sub>16.7663</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-att-ques-im-hist-gen-vgg16-80.t7"><sup><sub>lf-att-ques-im-hist-gen-vgg16-80</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5089</sub></sup></td><td><sup><sub>0.4000</sub></sup></td><td><sup><sub>0.6154</sub></sup></td><td><sup><sub>0.6739</sub></sup></td><td><sup><sub>17.3618</sub></sup></td><td><sup><sub><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/hre-ques-hist-gen-vgg16-18.t7">hre-ques-hist-gen-vgg16-18</a></sub></sup></td>
+            <td><sup><sub>hre-ques-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5089</sub></sup></td><td><sup><sub>0.4000</sub></sup></td><td><sup><sub>0.6154</sub></sup></td><td><sup><sub>0.6739</sub></sup></td><td><sup><sub>17.3618</sub></sup></td><td><sup><sub><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/hre-ques-hist-gen-vgg16-18.t7">hre-ques-hist-gen-vgg16-18</a></sub></sup></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5237</sub></sup></td><td><sup><sub>0.4223</sub></sup></td><td><sup><sub>0.6228</sub></sup></td><td><sup><sub>0.6811</sub></sup></td><td><sup><sub>16.9669</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/hre-ques-im-hist-gen-vgg16-14.t7"><sup><sub>hre-ques-im-hist-gen-vgg16-14</sub></sup></a></td>
+            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5237</sub></sup></td><td><sup><sub>0.4223</sub></sup></td><td><sup><sub>0.6228</sub></sup></td><td><sup><sub>0.6811</sub></sup></td><td><sup><sub>16.9669</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/hre-ques-im-hist-gen-vgg16-14.t7"><sup><sub>hre-ques-im-hist-gen-vgg16-14</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hrea-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5238</sub></sup></td><td><sup><sub>0.4213</sub></sup></td><td><sup><sub>0.6244</sub></sup></td><td><sup><sub>0.6842</sub></sup></td><td><sup><sub>16.6044</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/hrea-ques-im-hist-gen-vgg16-24.t7"><sup><sub>hrea-ques-im-hist-gen-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>hrea-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5238</sub></sup></td><td><sup><sub>0.4213</sub></sup></td><td><sup><sub>0.6244</sub></sup></td><td><sup><sub>0.6842</sub></sup></td><td><sup><sub>16.6044</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/hrea-ques-im-hist-gen-vgg16-24.t7"><sup><sub>hrea-ques-im-hist-gen-vgg16-24</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5131</sub></sup></td><td><sup><sub>0.4057</sub></sup></td><td><sup><sub>0.6176</sub></sup></td><td><sup><sub>0.6770</sub></sup></td><td><sup><sub>17.6253</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/mn-ques-hist-gen-vgg16-102.t7"><sup><sub>mn-ques-hist-gen-vgg16-102</sub></sup></a></td>
+            <td><sup><sub>mn-ques-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5131</sub></sup></td><td><sup><sub>0.4057</sub></sup></td><td><sup><sub>0.6176</sub></sup></td><td><sup><sub>0.6770</sub></sup></td><td><sup><sub>17.6253</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/mn-ques-hist-gen-vgg16-102.t7"><sup><sub>mn-ques-hist-gen-vgg16-102</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5258</sub></sup></td><td><sup><sub>0.4229</sub></sup></td><td><sup><sub>0.6274</sub></sup></td><td><sup><sub>0.6874</sub></sup></td><td><sup><sub>16.9871</sub></sup></td><td><sup><sub><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/mn-ques-im-hist-gen-vgg16-78.t7">mn-ques-im-hist-gen-vgg16-78</a></sub></sup></td>
+            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5258</sub></sup></td><td><sup><sub>0.4229</sub></sup></td><td><sup><sub>0.6274</sub></sup></td><td><sup><sub>0.6874</sub></sup></td><td><sup><sub>16.9871</sub></sup></td><td><sup><sub><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/mn-ques-im-hist-gen-vgg16-78.t7">mn-ques-im-hist-gen-vgg16-78</a></sub></sup></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5341</sub></sup></td><td><sup><sub>0.4354</sub></sup></td><td><sup><sub>0.6318</sub></sup></td><td><sup><sub>0.6903</sub></sup></td><td><sup><sub>17.0726</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/mn-att-ques-im-hist-gen-vgg16-100.t7"><sup><sub>mn-att-ques-im-hist-gen-vgg16-100</sub></sup></a></td>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5341</sub></sup></td><td><sup><sub>0.4354</sub></sup></td><td><sup><sub>0.6318</sub></sup></td><td><sup><sub>0.6903</sub></sup></td><td><sup><sub>17.0726</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/mn-att-ques-im-hist-gen-vgg16-100.t7"><sup><sub>mn-att-ques-im-hist-gen-vgg16-100</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5491</sub></sup></td><td><sup><sub>0.4113</sub></sup></td><td><sup><sub>0.7020</sub></sup></td><td><sup><sub>0.7964</sub></sup></td><td><sup><sub>7.1519</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-disc-vgg16-10.t7"><sup><sub>lf-ques-disc-vgg16-10</sub></sup></a></td>
+            <td><sup><sub>lf-ques</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5491</sub></sup></td><td><sup><sub>0.4113</sub></sup></td><td><sup><sub>0.7020</sub></sup></td><td><sup><sub>0.7964</sub></sup></td><td><sup><sub>7.1519</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-disc-vgg16-10.t7"><sup><sub>lf-ques-disc-vgg16-10</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5724</sub></sup></td><td><sup><sub>0.4319</sub></sup></td><td><sup><sub>0.7308</sub></sup></td><td><sup><sub>0.8251</sub></sup></td><td><sup><sub>6.2847</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-hist-disc-vgg16-8</sub></sup></a></td>
+            <td><sup><sub>lf-ques-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5724</sub></sup></td><td><sup><sub>0.4319</sub></sup></td><td><sup><sub>0.7308</sub></sup></td><td><sup><sub>0.8251</sub></sup></td><td><sup><sub>6.2847</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-hist-disc-vgg16-8</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques-im</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5745</sub></sup></td><td><sup><sub>0.4331</sub></sup></td><td><sup><sub>0.7398</sub></sup></td><td><sup><sub>0.8340</sub></sup></td><td><sup><sub>5.9801</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-im-disc-vgg16-12.t7"><sup><sub>lf-ques-im-disc-vgg16-12</sub></sup></a></td>
+            <td><sup><sub>lf-ques-im</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5745</sub></sup></td><td><sup><sub>0.4331</sub></sup></td><td><sup><sub>0.7398</sub></sup></td><td><sup><sub>0.8340</sub></sup></td><td><sup><sub>5.9801</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-im-disc-vgg16-12.t7"><sup><sub>lf-ques-im-disc-vgg16-12</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5911</sub></sup></td><td><sup><sub>0.4490</sub></sup></td><td><sup><sub>0.7563</sub></sup></td><td><sup><sub>0.8493</sub></sup></td><td><sup><sub>5.5493</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
+            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5911</sub></sup></td><td><sup><sub>0.4490</sub></sup></td><td><sup><sub>0.7563</sub></sup></td><td><sup><sub>0.8493</sub></sup></td><td><sup><sub>5.5493</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.6079</sub></sup></td><td><sup><sub>0.4692</sub></sup></td><td><sup><sub>0.7731</sub></sup></td><td><sup><sub>0.8635</sub></sup></td><td><sup><sub>5.1965</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/lf-att-ques-im-hist-disc-vgg16-20.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-20</sub></sup></a></td>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.6079</sub></sup></td><td><sup><sub>0.4692</sub></sup></td><td><sup><sub>0.7731</sub></sup></td><td><sup><sub>0.8635</sub></sup></td><td><sup><sub>5.1965</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/lf-att-ques-im-hist-disc-vgg16-20.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-20</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5668</sub></sup></td><td><sup><sub>0.4265</sub></sup></td><td><sup><sub>0.7245</sub></sup></td><td><sup><sub>0.8207</sub></sup></td><td><sup><sub>6.3701</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/hre-ques-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-hist-disc-vgg16-4</sub></sup></a></td>
+            <td><sup><sub>hre-ques-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5668</sub></sup></td><td><sup><sub>0.4265</sub></sup></td><td><sup><sub>0.7245</sub></sup></td><td><sup><sub>0.8207</sub></sup></td><td><sup><sub>6.3701</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/hre-ques-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-hist-disc-vgg16-4</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5818</sub></sup></td><td><sup><sub>0.4461</sub></sup></td><td><sup><sub>0.7373</sub></sup></td><td><sup><sub>0.8342</sub></sup></td><td><sup><sub>5.9647</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
+            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5818</sub></sup></td><td><sup><sub>0.4461</sub></sup></td><td><sup><sub>0.7373</sub></sup></td><td><sup><sub>0.8342</sub></sup></td><td><sup><sub>5.9647</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hrea-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5821</sub></sup></td><td><sup><sub>0.4456</sub></sup></td><td><sup><sub>0.7378</sub></sup></td><td><sup><sub>0.8341</sub></sup></td><td><sup><sub>5.9646</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/hrea-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hrea-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
+            <td><sup><sub>hrea-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5821</sub></sup></td><td><sup><sub>0.4456</sub></sup></td><td><sup><sub>0.7378</sub></sup></td><td><sup><sub>0.8341</sub></sup></td><td><sup><sub>5.9646</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/hrea-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hrea-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5831</sub></sup></td><td><sup><sub>0.4388</sub></sup></td><td><sup><sub>0.7507</sub></sup></td><td><sup><sub>0.8434</sub></sup></td><td><sup><sub>5.8090</sub></sup></td><td><sup><sub><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/mn-ques-hist-disc-vgg16-20.t7">mn-ques-hist-disc-vgg16-20</a></sub></sup></td>
+            <td><sup><sub>mn-ques-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5831</sub></sup></td><td><sup><sub>0.4388</sub></sup></td><td><sup><sub>0.7507</sub></sup></td><td><sup><sub>0.8434</sub></sup></td><td><sup><sub>5.8090</sub></sup></td><td><sup><sub><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/mn-ques-hist-disc-vgg16-20.t7">mn-ques-hist-disc-vgg16-20</a></sub></sup></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5971</sub></sup></td><td><sup><sub>0.4562</sub></sup></td><td><sup><sub>0.7627</sub></sup></td><td><sup><sub>0.8539</sub></sup></td><td><sup><sub>5.4218</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
+            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5971</sub></sup></td><td><sup><sub>0.4562</sub></sup></td><td><sup><sub>0.7627</sub></sup></td><td><sup><sub>0.8539</sub></sup></td><td><sup><sub>5.4218</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.6082</sub></sup></td><td><sup><sub>0.4700</sub></sup></td><td><sup><sub>0.7724</sub></sup></td><td><sup><sub>0.8623</sub></sup></td><td><sup><sub>5.2930</sub></sup></td><td><sup><sub><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v0.9/mn-att-ques-im-hist-disc-vgg16-28.t7">mn-att-ques-im-hist-disc-vgg16-28</a></sub></sup></td>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.6082</sub></sup></td><td><sup><sub>0.4700</sub></sup></td><td><sup><sub>0.7724</sub></sup></td><td><sup><sub>0.8623</sub></sup></td><td><sup><sub>5.2930</sub></sup></td><td><sup><sub><a href="https://s3.amazonaws.com/visual-dialog/models/v0.9/mn-att-ques-im-hist-disc-vgg16-28.t7">mn-att-ques-im-hist-disc-vgg16-28</a></sub></sup></td>
         </tr>
     </tbody>
 </table>
 
 ### v1.0
 
-Extracted features for v1.0 train, val and test are available for download [here][36].
+Extracted features for v1.0 train, val and test are available for download.
 
-* `visdial_data_train.h5`: Tokenized captions, questions, answers, image indices, for training on `train`
-* `visdial_params_train.json`: Vocabulary mappings and COCO image ids for training on `train`
-* `data_img_vgg16_relu7_train.h5`: VGG16 `relu7` image features for training on `train`
-* `data_img_vgg16_pool5_train.h5`: VGG16 `pool5` image features for training on `train`
-* `visdial_data_trainval.h5`: Tokenized captions, questions, answers, image indices, for training on `train`+`val`
-* `visdial_params_trainval.json`: Vocabulary mappings and COCO image ids for training on `train`+`val`
-* `data_img_vgg16_relu7_trainval.h5`: VGG16 `relu7` image features for training on `train`+`val`
-* `data_img_vgg16_pool5_trainval.h5`: VGG16 `pool5` image features for training on `train`+`val`
+* [`visdial_data_train.h5`](https://s3.amazonaws.com/visual-dialog/data/v1.0/visdial_data_train.h5): Tokenized captions, questions, answers, image indices, for training on `train`
+* [`visdial_params_train.json`](https://s3.amazonaws.com/visual-dialog/data/v1.0/visdial_params_train.json): Vocabulary mappings and COCO image ids for training on `train`
+* [`data_img_vgg16_relu7_train.h5`](https://s3.amazonaws.com/visual-dialog/data/v1.0/data_img_vgg16_relu7_train.h5): VGG16 `relu7` image features for training on `train`
+* [`data_img_vgg16_pool5_train.h5`](https://s3.amazonaws.com/visual-dialog/data/v1.0/data_img_vgg16_pool5_train.h5): VGG16 `pool5` image features for training on `train`
+* [`visdial_data_trainval.h5`](https://s3.amazonaws.com/visual-dialog/data/v1.0/visdial_data_trainval.h5): Tokenized captions, questions, answers, image indices, for training on `train`+`val`
+* [`visdial_params_trainval.json`](https://s3.amazonaws.com/visual-dialog/data/v1.0/visdial_params_trainval.json): Vocabulary mappings and COCO image ids for training on `train`+`val`
+* [`data_img_vgg16_relu7_trainval.h5`](https://s3.amazonaws.com/visual-dialog/data/v1.0/data_img_vgg16_relu7_trainval.h5): VGG16 `relu7` image features for training on `train`+`val`
+* [`data_img_vgg16_pool5_trainval.h5`](https://s3.amazonaws.com/visual-dialog/data/v1.0/data_img_vgg16_pool5_trainval.h5): VGG16 `pool5` image features for training on `train`+`val`
 
 #### Pretrained models
 
@@ -298,19 +298,19 @@ NOTE: Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`
     </thead>
     <tbody>
         <tr>
-            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
+            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5416</sub></sup></td><td><sup><sub>39.93</sub></sup></td><td><sup><sub>70.45</sub></sup></td><td><sup><sub>81.50</sub></sup></td><td><sup><sub>6.4082</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
+            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5416</sub></sup></td><td><sup><sub>39.93</sub></sup></td><td><sup><sub>70.45</sub></sup></td><td><sup><sub>81.50</sub></sup></td><td><sup><sub>6.4082</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
+            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://computing.ece.vt.edu/~abhshkdz/visdial/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
         </tr>
     </tbody>
 </table>
@@ -333,8 +333,8 @@ BSD
 [5]: http://people.eecs.berkeley.edu/~avisingh/
 [6]: http://deshraj.github.io
 [7]: http://users.ece.cmu.edu/~moura/
-[8]: https://computing.ece.vt.edu/~parikh/
-[9]: https://computing.ece.vt.edu/~batra/
+[8]: http://www.cc.gatech.edu/~parikh/
+[9]: http://www.cc.gatech.edu/~dbatra
 [10]: http://cvpr2017.thecvf.com/
 [11]: http://demo.visualdialog.org
 [12]: https://vimeo.com/193092429
@@ -354,11 +354,8 @@ BSD
 [26]: https://github.com/deepmind/torch-hdf5/blob/master/doc/usage.md
 [27]: https://visualdialog.org/data
 [28]: http://www.robots.ox.ac.uk/~vgg/research/very_deep/
-[29]: https://computing.ece.vt.edu/~abhshkdz/visdial/data/v0.9/
-[30]: https://computing.ece.vt.edu/~abhshkdz/visdial/models/
 [31]: https://www.github.com/soumith/cudnn.torch
 [32]: https://github.com/facebook/fb.resnet.torch/tree/master/pretrained
 [33]: https://github.com/torch/rnn
 [34]: http://images.cocodataset.org/zips/train2014.zip
 [35]: http://images.cocodataset.org/zips/val2014.zip
-[36]: https://computing.ece.vt.edu/~abhshkdz/visdial/data/v1.0/
