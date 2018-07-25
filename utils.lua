@@ -104,28 +104,35 @@ end
 -- process the scores and obtain the ranks
 -- input: scores for all options, ground truth positions
 function utils.computeRanks(scores, gtPos)
-    -- simply sort according to scores if ground truth not available
-    local ranks;
-    if gtPos then
-        gtPos = gtPos:view(-1, 1);
-        local gtScore = scores:gather(2, gtPos);
-        ranks = scores:gt(gtScore:expandAs(scores));
-        ranks = ranks:sum(2) + 1;
-    else
-        -- sort in descending order - largest score gets highest rank
-        sorted, ranked_idx = scores:sort(2, true)
+    -- sort in descending order - largest score gets highest rank
+    sorted, rankedIdx = scores:sort(2, true)
 
-        -- convert from ranked_idx to ranks
-        ranks = ranked_idx:clone():fill(0)
-        for i = 1, ranked_idx:size(1) do
-            for j = 1, 100 do
-                ranks[{i, ranked_idx[{i, j}]}] = j
-            end
+    -- convert from ranked_idx to ranks
+    local ranks = rankedIdx:clone():fill(0)
+    for i = 1, rankedIdx:size(1) do
+        for j = 1, 100 do
+            ranks[{i, rankedIdx[{i, j}]}] = j
         end
     end
 
+    if gtPos then
+        gtPos = gtPos:view(-1)
+        numOpts = 100
+        ranks = ranks:view(-1, numOpts)
+        local gtRanks = torch.LongTensor(gtPos:size(1))
+        for i = 1, gtPos:size(1) do
+            gtBinary = torch.LongTensor(numOpts):zero()
+            gtBinary[{gtPos[{i}]}] = 1
+            sorted, rankedIdx = ranks[{i}]:sort()
+            sortedGt = gtBinary:index(1, rankedIdx:long())
+            gtRank = sortedGt:nonzero()
+            gtRanks[i] = gtRank
+        end
+        ranks = gtRanks
+    end
+
     -- convert into double
-    return ranks:double();
+    return ranks:double()
 end
 
 -- process the ranks and print metrics
