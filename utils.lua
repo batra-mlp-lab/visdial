@@ -105,7 +105,7 @@ end
 -- input: scores for all options, ground truth positions
 function utils.computeRanks(scores, gtPos)
     -- sort in descending order - largest score gets highest rank
-    sorted, rankedIdx = scores:sort(2, true)
+    local sorted, rankedIdx = scores:sort(2, true)
 
     -- convert from ranked_idx to ranks
     local ranks = rankedIdx:clone():fill(0)
@@ -117,21 +117,13 @@ function utils.computeRanks(scores, gtPos)
 
     if gtPos then
         gtPos = gtPos:view(-1)
-        numOpts = 100
-        ranks = ranks:view(-1, numOpts)
         local gtRanks = torch.LongTensor(gtPos:size(1))
         for i = 1, gtPos:size(1) do
-            gtBinary = torch.LongTensor(numOpts):zero()
-            gtBinary[{gtPos[{i}]}] = 1
-            sorted, rankedIdx = ranks[{i}]:sort()
-            sortedGt = gtBinary:index(1, rankedIdx:long())
-            gtRank = sortedGt:nonzero()
-            gtRanks[i] = gtRank
+            gtRanks[i] = ranks[{i, gtPos[i]}]
         end
         ranks = gtRanks
     end
 
-    -- convert into double
     return ranks:double()
 end
 
