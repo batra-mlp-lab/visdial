@@ -195,7 +195,7 @@ Extracted features for v0.9 train and val are available for download.
 
 #### Pretrained models
 
-NOTE: Trained on v0.9 `train`, results on v0.9 `val`
+Trained on v0.9 `train`, results on v0.9 `val`.
 
 <table>
     <thead>
@@ -288,7 +288,7 @@ Extracted features for v1.0 train, val and test are available for download.
 
 #### Pretrained models
 
-NOTE: Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`
+Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`. Leaderboard [here][evalai-leaderboard].
 
 <table>
     <thead>
@@ -353,3 +353,4 @@ BSD
 [33]: https://github.com/torch/rnn
 [34]: http://images.cocodataset.org/zips/train2014.zip
 [35]: http://images.cocodataset.org/zips/val2014.zip
+[evalai-leaderboard]: https://evalai.cloudcv.org/web/challenges/challenge-page/103/leaderboard/298
