@@ -293,33 +293,27 @@ NOTE: Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`
 <table>
     <thead>
         <tr>
-            <th><sup><sub>Encoder</sub></sup></th><th><sup><sub>Decoder</sub></sup></th><th><sup><sub>CNN</sub></sup></th><th><sup><sub>MRR</sub></sup></th><th><sup><sub>R@1</sub></sup></th><th><sup><sub>R@5</sub></sup></th><th><sup><sub>R@10</sub></sup></th><th><sup><sub>MR</sub></sup></th><th><sup><sub>Download</sub></sup></th>
+            <th><sup><sub>Encoder</sub></sup></th><th><sup><sub>Decoder</sub></sup></th><th><sup><sub>CNN</sub></sup></th><th><sup><sub>NDCG</sub></sup></th><th><sup><sub>MRR</sub></sup></th><th><sup><sub>R@1</sub></sup></th><th><sup><sub>R@5</sub></sup></th><th><sup><sub>R@10</sub></sup></th><th><sup><sub>MR</sub></sup></th><th><sup><sub>Download</sub></sup></th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
+            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4531</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5416</sub></sup></td><td><sup><sub>39.93</sub></sup></td><td><sup><sub>70.45</sub></sup></td><td><sup><sub>81.50</sub></sup></td><td><sup><sub>6.4082</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
+            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4546</sub></sup></td><td><sup><sub>0.5416</sub></sup></td><td><sup><sub>39.93</sub></sup></td><td><sup><sub>70.45</sub></sup></td><td><sup><sub>81.50</sub></sup></td><td><sup><sub>6.4082</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
+            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4750</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4976</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4958</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
         </tr>
     </tbody>
 </table>
-
-## Contributors
-
-* [Abhishek Das][2] (abhshkdz@gatech.edu)
-* [Satwik Kottur][3]
-* [Avi Singh][5]
 
 ## License
 
