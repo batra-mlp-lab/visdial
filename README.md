@@ -62,6 +62,8 @@ luarocks make rocks/rnn-scm-1.rockspec
 
 Installation instructions for torch-hdf5 are given [here][26].
 
+**NOTE**: torch-hdf5 does not work with few versions of gcc. It is recommended that you use gcc 4.8 / gcc 4.9 with Lua 5.1 for proper installation of torch-hdf5. 
+
 ### Running on GPUs
 
 Although our code should work on CPUs, it is *highly* recommended to use GPU acceleration with [CUDA][21]. You'll also need [torch/cutorch][22], [torch/cudnn][31] and [torch/cunn][23].
@@ -195,7 +197,7 @@ Extracted features for v0.9 train and val are available for download.
 
 #### Pretrained models
 
-NOTE: Trained on v0.9 `train`, results on v0.9 `val`
+Trained on v0.9 `train`, results on v0.9 `val`.
 
 <table>
     <thead>
@@ -288,38 +290,32 @@ Extracted features for v1.0 train, val and test are available for download.
 
 #### Pretrained models
 
-NOTE: Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`
+Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`. Leaderboard [here][evalai-leaderboard].
 
 <table>
     <thead>
         <tr>
-            <th><sup><sub>Encoder</sub></sup></th><th><sup><sub>Decoder</sub></sup></th><th><sup><sub>CNN</sub></sup></th><th><sup><sub>MRR</sub></sup></th><th><sup><sub>R@1</sub></sup></th><th><sup><sub>R@5</sub></sup></th><th><sup><sub>R@10</sub></sup></th><th><sup><sub>MR</sub></sup></th><th><sup><sub>Download</sub></sup></th>
+            <th><sup><sub>Encoder</sub></sup></th><th><sup><sub>Decoder</sub></sup></th><th><sup><sub>CNN</sub></sup></th><th><sup><sub>NDCG</sub></sup></th><th><sup><sub>MRR</sub></sup></th><th><sup><sub>R@1</sub></sup></th><th><sup><sub>R@5</sub></sup></th><th><sup><sub>R@10</sub></sup></th><th><sup><sub>MR</sub></sup></th><th><sup><sub>Download</sub></sup></th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
+            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4531</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5416</sub></sup></td><td><sup><sub>39.93</sub></sup></td><td><sup><sub>70.45</sub></sup></td><td><sup><sub>81.50</sub></sup></td><td><sup><sub>6.4082</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
+            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4546</sub></sup></td><td><sup><sub>0.5416</sub></sup></td><td><sup><sub>39.93</sub></sup></td><td><sup><sub>70.45</sub></sup></td><td><sup><sub>81.50</sub></sup></td><td><sup><sub>6.4082</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/hre-ques-im-hist-disc-vgg16-4.t7"><sup><sub>hre-ques-im-hist-disc-vgg16-4</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
+            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4750</sub></sup></td><td><sup><sub>0.5549</sub></sup></td><td><sup><sub>40.98</sub></sup></td><td><sup><sub>72.30</sub></sup></td><td><sup><sub>83.30</sub></sup></td><td><sup><sub>5.9245</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-ques-im-hist-disc-vgg16-12.t7"><sup><sub>mn-ques-im-hist-disc-vgg16-12</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4976</sub></sup></td><td><sup><sub>0.5707</sub></sup></td><td><sup><sub>42.08</sub></sup></td><td><sup><sub>74.82</sub></sup></td><td><sup><sub>85.05</sub></sup></td><td><sup><sub>5.4092</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>lf-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
         </tr>
         <tr>
-            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4958</sub></sup></td><td><sup><sub>0.5690</sub></sup></td><td><sup><sub>42.42</sub></sup></td><td><sup><sub>74.00</sub></sup></td><td><sup><sub>84.35</sub></sup></td><td><sup><sub>5.5852</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-att-ques-im-hist-disc-vgg16-24.t7"><sup><sub>mn-att-ques-im-hist-disc-vgg16-24</sub></sup></a></td>
         </tr>
     </tbody>
 </table>
-
-## Contributors
-
-* [Abhishek Das][2] (abhshkdz@gatech.edu)
-* [Satwik Kottur][3]
-* [Avi Singh][5]
 
 ## License
 
@@ -359,3 +355,4 @@ BSD
 [33]: https://github.com/torch/rnn
 [34]: http://images.cocodataset.org/zips/train2014.zip
 [35]: http://images.cocodataset.org/zips/val2014.zip
+[evalai-leaderboard]: https://evalai.cloudcv.org/web/challenges/challenge-page/103/leaderboard/298
