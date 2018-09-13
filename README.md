@@ -62,6 +62,8 @@ luarocks make rocks/rnn-scm-1.rockspec
 
 Installation instructions for torch-hdf5 are given [here][26].
 
+**NOTE**: torch-hdf5 does not work with few versions of gcc. It is recommended that you use gcc 4.8 / gcc 4.9 with Lua 5.1 for proper installation of torch-hdf5. 
+
 ### Running on GPUs
 
 Although our code should work on CPUs, it is *highly* recommended to use GPU acceleration with [CUDA][21]. You'll also need [torch/cutorch][22], [torch/cudnn][31] and [torch/cunn][23].
