@@ -300,6 +300,21 @@ Trained on v1.0 `train` + v1.0 `val`, results on v1.0 `test-std`. Leaderboard [h
     </thead>
     <tbody>
         <tr>
+            <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5121</sub></sup></td><td><sup><sub>0.4568</sub></sup></td><td><sup><sub>35.08</sub></sup></td><td><sup><sub>55.92</sub></sup></td><td><sup><sub>64.02</sub></sup></td><td><sup><sub>18.8140</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-gen-vgg16-24.t7"><sup><sub>lf-ques-im-hist-gen-vgg16-24</sub></sup></a></td>
+        </tr>
+        <tr>
+            <td><sup><sub>hre-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5245</sub></sup></td><td><sup><sub>0.4561</sub></sup></td><td><sup><sub>34.78</sub></sup></td><td><sup><sub>56.18</sub></sup></td><td><sup><sub>63.72</sub></sup></td><td><sup><sub>18.7778</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/hre-ques-im-hist-gen-vgg16-20.t7"><sup><sub>hre-ques-im-hist-gen-vgg16-20</sub></sup></a></td>
+        </tr>
+        <tr>
+            <td><sup><sub>mn-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5280</sub></sup></td><td><sup><sub>0.4580</sub></sup></td><td><sup><sub>35.05</sub></sup></td><td><sup><sub>56.35</sub></sup></td><td><sup><sub>63.92</sub></sup></td><td><sup><sub>19.3128</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-ques-im-hist-gen-vgg16-92.t7"><sup><sub>mn-ques-im-hist-gen-vgg16-92</sub></sup></a></td>
+        </tr>
+        <tr>
+            <td><sup><sub>lf-att-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5362</sub></sup></td><td><sup><sub>0.4697</sub></sup></td><td><sup><sub>36.58</sub></sup></td><td><sup><sub>57.40</sub></sup></td><td><sup><sub>64.48</sub></sup></td><td><sup><sub>18.9550</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-att-ques-im-hist-gen-vgg16-82.t7"><sup><sub>lf-att-ques-im-hist-gen-vgg16-82</sub></sup></a></td>
+        </tr>
+        <tr>
+            <td><sup><sub>mn-att-ques-im-hist</sub></sup></td><td><sup><sub>gen</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.5367</sub></sup></td><td><sup><sub>0.4650</sub></sup></td><td><sup><sub>36.00</sub></sup></td><td><sup><sub>56.80</sub></sup></td><td><sup><sub>64.25</sub></sup></td><td><sup><sub>19.3470</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/mn-att-ques-im-hist-gen-vgg16-100.t7"><sup><sub>mn-att-ques-im-hist-gen-vgg16-100</sub></sup></a></td>
+        </tr>
+        <tr>
             <td><sup><sub>lf-ques-im-hist</sub></sup></td><td><sup><sub>disc</sub></sup></td><td><sup><sub>VGG-16</sub></sup></td><td><sup><sub>0.4531</sub></sup></td><td><sup><sub>0.5542</sub></sup></td><td><sup><sub>40.95</sub></sup></td><td><sup><sub>72.45</sub></sup></td><td><sup><sub>82.83</sub></sup></td><td><sup><sub>5.9532</sub></sup></td><td><a href="https://s3.amazonaws.com/visual-dialog/models/v1.0/lf-ques-im-hist-disc-vgg16-8.t7"><sup><sub>lf-ques-im-hist-disc-vgg16-8</sub></sup></a></td>
         </tr>
         <tr>
